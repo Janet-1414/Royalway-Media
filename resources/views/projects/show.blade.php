@@ -367,6 +367,9 @@
                             <a href="{{ route('projects.show', $related->slug) }}" class="text-decoration-none">
                                 <div class="project-card">
                                     <div class="project-image">
+                                        @if($related->category)
+                                            <span class="category-pill">{{ $related->category }}</span>
+                                        @endif
                                         @if($related->image_url)
                                             <img src="{{ $related->image_url }}" alt="{{ $related->title }}" class="img-fluid">
                                         @else
@@ -374,8 +377,7 @@
                                         @endif
                                     </div>
                                     <div class="project-content">
-                                        <span class="project-tag">{{ $related->category }}</span>
-                                        <p class="fw-700 text-dark-emphasis mt-3 mb-2">{{ $related->title }}</p>
+                                        <p class="fw-700 text-dark-emphasis mt-3 mb-2 card-title">{{ $related->title }}</p>
                                         <p class="text-muted mb-3">{{ Str::limit($related->description, 80) }}</p>
                                         <span class="cta-link">Learn More <i class="fas fa-arrow-right ms-2"></i></span>
                                     </div>

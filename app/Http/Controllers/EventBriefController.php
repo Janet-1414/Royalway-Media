@@ -1,9 +1,6 @@
 <?php
 /**
  * File Path: app/Http/Controllers/EventBriefController.php
- *
- * Run: php artisan make:controller EventBriefController
- * Then replace content with this file
  */
 
 namespace App\Http\Controllers;
@@ -11,6 +8,7 @@ namespace App\Http\Controllers;
 use App\Models\EventBrief;
 use App\Mail\EventBriefSubmissionMail;
 use App\Mail\EventBriefConfirmationMail;
+use App\Services\SpamGuard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -21,7 +19,9 @@ class EventBriefController extends Controller
      */
     public function index()
     {
-        return view('event-brief');
+        return view('event-brief', [
+            'formTimestamp' => SpamGuard::generateTimestamp(),
+        ]);
     }
 
     /**
@@ -29,10 +29,25 @@ class EventBriefController extends Controller
      */
     public function store(Request $request)
     {
+        // Spam check BEFORE validation/saving
+        $spamGuard = new SpamGuard($request, 'event_brief', [
+            'organization_name',
+            'key_contact',
+            'venue',
+            'event_nature',
+            'additional_info',
+        ]);
+
+        if ($spamGuard->isSpam()) {
+            // Silent drop - return success message but do nothing
+            return redirect()->back()->with('success', 'Thank you for submitting your event brief! We will contact you shortly with a quote.');
+        }
+
         // Validate the request
         $validated = $request->validate([
             'organization_name' => 'required|string|max:255',
             'key_contact' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
             'venue' => 'required|string|max:255',
             'event_nature' => 'required|string|max:255',
             'setup' => 'required|in:indoor,outdoor',
@@ -49,6 +64,7 @@ class EventBriefController extends Controller
         $brief = EventBrief::create([
             'organization_name' => $validated['organization_name'],
             'key_contact' => $validated['key_contact'],
+            'email' => $validated['email'],
             'venue' => $validated['venue'],
             'event_nature' => $validated['event_nature'],
             'setup' => $validated['setup'],
@@ -69,9 +85,11 @@ class EventBriefController extends Controller
             Mail::to(config('mail.admin_email', 'sales@royalwaymedia.com'))
                 ->send(new EventBriefSubmissionMail($brief));
 
-            // Send confirmation email to user (if we have their email in key_contact)
-            // You might want to add an email field to the form
-            // Mail::to($userEmail)->send(new EventBriefConfirmationMail($brief));
+            // Send confirmation email to user if we have their email
+            if ($brief->email) {
+                Mail::to($brief->email)
+                    ->send(new EventBriefConfirmationMail($brief));
+            }
         } catch (\Exception $e) {
             // Log the error but don't fail the submission
             \Log::error('Failed to send event brief email: ' . $e->getMessage());

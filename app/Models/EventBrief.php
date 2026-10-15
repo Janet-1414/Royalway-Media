@@ -1,15 +1,13 @@
 <?php
 /**
  * File Path: app/Models/EventBrief.php
- *
- * Run: php artisan make:model EventBrief
- * Then replace content with this file
  */
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class EventBrief extends Model
 {
@@ -18,6 +16,7 @@ class EventBrief extends Model
     protected $fillable = [
         'organization_name',
         'key_contact',
+        'email',
         'venue',
         'event_nature',
         'setup',
@@ -29,6 +28,10 @@ class EventBrief extends Model
         'branding',
         'additional_info',
         'status',
+        'reply_subject',
+        'reply_message',
+        'replied_at',
+        'replied_by',
         'ip_address',
         'user_agent',
     ];
@@ -41,7 +44,16 @@ class EventBrief extends Model
         'branding' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'replied_at' => 'datetime',
     ];
+
+    /**
+     * Get the user who replied
+     */
+    public function repliedByUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'replied_by');
+    }
 
     /**
      * Scope for new submissions
@@ -97,6 +109,14 @@ class EventBrief extends Model
     public function markAsCompleted()
     {
         $this->update(['status' => 'completed']);
+    }
+
+    /**
+     * Check if brief has been replied to
+     */
+    public function hasBeenReplied(): bool
+    {
+        return $this->replied_at !== null;
     }
 
     /**

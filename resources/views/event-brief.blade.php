@@ -45,6 +45,15 @@
                     <div class="event-brief-form-wrapper">
                         <form class="event-brief-form" id="eventBriefForm" action="{{ route('event-brief.store') }}" method="POST">
                             @csrf
+                            {{-- Spam protection: honeypot (hidden from real users) --}}
+                            <div style="position: absolute; left: -9999px;" aria-hidden="true">
+                                <label for="website">Leave this empty</label>
+                                <input type="text" name="website" id="website" tabindex="-1" autocomplete="off">
+                            </div>
+                            {{-- Spam protection: timing token --}}
+                            <input type="hidden" name="form_started_at" value="{{ $formTimestamp ?? '' }}">
+                            {{-- reCAPTCHA token --}}
+                            <input type="hidden" name="g-recaptcha-response" id="recaptchaToken">
 
                             <!-- Basic Information -->
                             <div class="form-section mb-5">
@@ -60,6 +69,12 @@
                                     <label class="form-label">Key Client Contact?<span class="text-danger">*</span></label>
                                     <input type="text" name="key_contact" class="form-control form-control-lg @error('key_contact') is-invalid @enderror" value="{{ old('key_contact') }}" required>
                                     @error('key_contact')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label">Email Address<span class="text-danger">*</span></label>
+                                    <input type="email" name="email" class="form-control form-control-lg @error('email') is-invalid @enderror" value="{{ old('email') }}" placeholder="your@email.com" required>
+                                    @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
 
                                 <div class="mb-4">
@@ -387,6 +402,11 @@
                             <!-- Submit Button -->
                             <div class="text-center">
                                 <button type="submit" class="btn btn-burgundy btn-lg px-5">Submit Event Brief</button>
+                                <p class="recaptcha-notice mt-3">
+                                    This site is protected by reCAPTCHA and the Google
+                                    <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a> and
+                                    <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms of Service</a> apply.
+                                </p>
                             </div>
                         </form>
                     </div>
@@ -397,3 +417,25 @@
 
     </section>
 @endsection
+
+@push('scripts')
+@if(config('services.recaptcha.site_key'))
+<script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('eventBriefForm');
+    if (!form) return;
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        grecaptcha.ready(function() {
+            grecaptcha.execute('{{ config('services.recaptcha.site_key') }}', {action: 'event_brief'}).then(function(token) {
+                document.getElementById('recaptchaToken').value = token;
+                form.submit();
+            });
+        });
+    });
+});
+</script>
+@endif
+@endpush

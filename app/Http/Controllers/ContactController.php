@@ -1,9 +1,6 @@
 <?php
 /**
  * File Path: app/Http/Controllers/ContactController.php
- *
- * Run: php artisan make:controller ContactController
- * Then replace content with this file
  */
 
 namespace App\Http\Controllers;
@@ -11,6 +8,7 @@ namespace App\Http\Controllers;
 use App\Models\ContactSubmission;
 use App\Mail\ContactSubmissionMail;
 use App\Mail\ContactConfirmationMail;
+use App\Services\SpamGuard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -21,7 +19,9 @@ class ContactController extends Controller
      */
     public function index()
     {
-        return view('contact');
+        return view('contact', [
+            'formTimestamp' => SpamGuard::generateTimestamp(),
+        ]);
     }
 
     /**
@@ -29,6 +29,14 @@ class ContactController extends Controller
      */
     public function store(Request $request)
     {
+        // Spam check BEFORE validation/saving
+        $spamGuard = new SpamGuard($request, 'contact', ['name', 'message']);
+
+        if ($spamGuard->isSpam()) {
+            // Silent drop - return success message but do nothing
+            return redirect()->back()->with('success', 'Thank you for your message! We will get back to you shortly.');
+        }
+
         // Validate the request
         $validated = $request->validate([
             'name' => 'required|string|max:255',

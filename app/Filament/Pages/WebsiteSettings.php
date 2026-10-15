@@ -65,6 +65,17 @@ class WebsiteSettings extends Page implements HasForms
             'hero_poster' => SiteSetting::get('hero_poster'),
             'homepage_stats' => json_decode(SiteSetting::get('homepage_stats', '[]'), true) ?: [],
 
+            // CTA Section
+            'cta_title' => SiteSetting::get('cta_title', 'Ready to tell your story?'),
+            'cta_subtitle' => SiteSetting::get('cta_subtitle'),
+            'cta_button_text' => SiteSetting::get('cta_button_text', 'Start a Project'),
+            'cta_button_link' => SiteSetting::get('cta_button_link', '/contact'),
+            'cta_show_whatsapp' => SiteSetting::get('cta_show_whatsapp') === '1',
+
+            // About Section Images
+            'about_slider_images' => json_decode(SiteSetting::get('about_slider_images', '[]'), true) ?: [],
+            'about_image_2' => SiteSetting::get('about_image_2'),
+
             // WhatsApp
             'whatsapp_enabled' => SiteSetting::get('whatsapp_enabled') === '1' || SiteSetting::get('whatsapp_enabled') === 'true',
             'whatsapp_number' => SiteSetting::get('whatsapp_number'),
@@ -79,6 +90,10 @@ class WebsiteSettings extends Page implements HasForms
             'seo_og_image' => SiteSetting::get('seo_og_image'),
             'google_search_console' => SiteSetting::get('google_search_console'),
             'google_analytics_id' => SiteSetting::get('google_analytics_id'),
+
+            // Security
+            'spam_blocked_words' => SiteSetting::get('spam_blocked_words', ''),
+            'spam_blocked_domains' => SiteSetting::get('spam_blocked_domains', ''),
         ]);
     }
 
@@ -289,6 +304,50 @@ class WebsiteSettings extends Page implements HasForms
                                             ->defaultItems(3)
                                             ->maxItems(4),
                                     ]),
+
+                                Forms\Components\Section::make('Call to Action Section')
+                                    ->description('The CTA band between Services and Projects sections')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('cta_title')
+                                            ->label('CTA Title')
+                                            ->maxLength(255),
+
+                                        Forms\Components\Textarea::make('cta_subtitle')
+                                            ->label('CTA Subtitle')
+                                            ->rows(2),
+
+                                        Forms\Components\Grid::make(2)->schema([
+                                            Forms\Components\TextInput::make('cta_button_text')
+                                                ->label('Button Text'),
+                                            Forms\Components\TextInput::make('cta_button_link')
+                                                ->label('Button Link'),
+                                        ]),
+
+                                        Forms\Components\Toggle::make('cta_show_whatsapp')
+                                            ->label('Show WhatsApp Button')
+                                            ->helperText('Display a "Chat on WhatsApp" button alongside the primary button'),
+                                    ]),
+
+                                Forms\Components\Section::make('About Section Images')
+                                    ->description('Images for the About Us section on the homepage')
+                                    ->schema([
+                                        Forms\Components\FileUpload::make('about_slider_images')
+                                            ->label('About Slider Images (Left)')
+                                            ->disk('public')
+                                            ->directory('site/about')
+                                            ->image()
+                                            ->multiple()
+                                            ->reorderable()
+                                            ->maxFiles(5)
+                                            ->helperText('Upload up to 5 images for the crossfade slider'),
+
+                                        Forms\Components\FileUpload::make('about_image_2')
+                                            ->label('About Second Image (Right)')
+                                            ->disk('public')
+                                            ->directory('site/about')
+                                            ->image()
+                                            ->helperText('The smaller right-side image'),
+                                    ])->columns(2),
                             ]),
 
                         // WhatsApp Tab
@@ -359,6 +418,25 @@ class WebsiteSettings extends Page implements HasForms
                                     ->placeholder('G-XXXXXXXXXX')
                                     ->helperText('GA4 Measurement ID'),
                             ]),
+
+                        // Security Tab
+                        Forms\Components\Tabs\Tab::make('Security')
+                            ->icon('heroicon-o-shield-check')
+                            ->schema([
+                                Forms\Components\Section::make('Spam Protection')
+                                    ->description('Configure blocked words and domains for contact forms')
+                                    ->schema([
+                                        Forms\Components\Textarea::make('spam_blocked_words')
+                                            ->label('Blocked Words / Phrases')
+                                            ->rows(10)
+                                            ->helperText('One word or phrase per line. Messages containing any of these will be silently blocked.'),
+
+                                        Forms\Components\Textarea::make('spam_blocked_domains')
+                                            ->label('Blocked Email Domains')
+                                            ->rows(6)
+                                            ->helperText('One domain per line (e.g., mail.ru). Emails from these domains will be blocked.'),
+                                    ])->columns(2),
+                            ]),
                     ])
                     ->columnSpanFull(),
             ])
@@ -422,6 +500,17 @@ class WebsiteSettings extends Page implements HasForms
         $saveFile('hero_poster', $data['hero_poster'] ?? null, 'image', 'homepage');
         SiteSetting::set('homepage_stats', json_encode($data['homepage_stats'] ?? []), 'json', 'homepage');
 
+        // CTA
+        SiteSetting::set('cta_title', $data['cta_title'] ?? '', 'text', 'homepage');
+        SiteSetting::set('cta_subtitle', $data['cta_subtitle'] ?? '', 'textarea', 'homepage');
+        SiteSetting::set('cta_button_text', $data['cta_button_text'] ?? '', 'text', 'homepage');
+        SiteSetting::set('cta_button_link', $data['cta_button_link'] ?? '', 'text', 'homepage');
+        SiteSetting::set('cta_show_whatsapp', $data['cta_show_whatsapp'] ? '1' : '0', 'boolean', 'homepage');
+
+        // About Images
+        SiteSetting::set('about_slider_images', json_encode($data['about_slider_images'] ?? []), 'json', 'homepage');
+        $saveFile('about_image_2', $data['about_image_2'] ?? null, 'image', 'homepage');
+
         // WhatsApp
         SiteSetting::set('whatsapp_enabled', $data['whatsapp_enabled'] ? '1' : '0', 'boolean', 'whatsapp');
         SiteSetting::set('whatsapp_number', $data['whatsapp_number'] ?? '', 'text', 'whatsapp');
@@ -436,6 +525,10 @@ class WebsiteSettings extends Page implements HasForms
         $saveFile('seo_og_image', $data['seo_og_image'] ?? null, 'image', 'seo');
         SiteSetting::set('google_search_console', $data['google_search_console'] ?? '', 'text', 'seo');
         SiteSetting::set('google_analytics_id', $data['google_analytics_id'] ?? '', 'text', 'seo');
+
+        // Security
+        SiteSetting::set('spam_blocked_words', $data['spam_blocked_words'] ?? '', 'textarea', 'security');
+        SiteSetting::set('spam_blocked_domains', $data['spam_blocked_domains'] ?? '', 'textarea', 'security');
 
         // Clear cache
         Cache::forget('site_settings');

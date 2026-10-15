@@ -31,6 +31,22 @@
                 ['number' => '150+', 'label' => 'Satisfied Customers'],
             ];
         }
+
+        // About section images
+        $aboutSliderImages = json_decode(setting('about_slider_images', '[]'), true) ?: [];
+        $aboutImage2 = setting('about_image_2');
+
+        // CTA section
+        $ctaTitle = setting('cta_title', 'Ready to tell your story?');
+        $ctaSubtitle = setting('cta_subtitle', 'From strategy to events and media, one team delivers your communication from brief to results.');
+        $ctaButtonText = setting('cta_button_text', 'Start a Project');
+        $ctaButtonLink = setting('cta_button_link', '/contact');
+        $ctaShowWhatsapp = setting('cta_show_whatsapp') === '1';
+
+        // WhatsApp for CTA
+        $waNumber = setting('whatsapp_number', '256772464686');
+        $waPrefill = setting('whatsapp_prefill', 'Hello RoyalWay Media, I\'d like to enquire about your services.');
+        $waLink = 'https://wa.me/' . preg_replace('/[^0-9]/', '', $waNumber) . '?text=' . urlencode($waPrefill);
     @endphp
 
     <section class="hero-video-section">
@@ -66,29 +82,26 @@
         </div>
     </section>
 
-    <!-- Partners Section -->
-
+    <!-- Partners Section with Marquee -->
     <section class="partners-section py-5">
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 col-12 mb-4 mb-lg-0">
-                    <p class="fw-700 fs-5 text-dark">Trusted by our Partners</p>
+                    <h2 class="fw-bold fs-4 text-dark mb-2">Trusted by our Partners</h2>
                     <p class="text-muted">Driven by our purpose of creating better outcomes for our clients &amp; their customers.</p>
                 </div>
-
-
                 <div class="col-lg-8 col-12">
-                    <div id="logoCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="7000">
-                        <div class="carousel-inner">
-                            @foreach($partners->chunk(6) as $index => $partnerChunk)
-                                <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
-                                    <div class="row justify-content-center">
-                                        @foreach($partnerChunk as $partner)
-                                            <div class="col-lg-2 col-md-3 col-4 mb-2">
-                                                <img class="w-100 opacity-9" src="{{ asset('storage/' . $partner->logo) }}" alt="{{ $partner->name }}" loading="lazy" width="120" height="60">
-                                            </div>
-                                        @endforeach
-                                    </div>
+                    <div class="partners-marquee-wrapper">
+                        <div class="partners-marquee-track">
+                            @foreach($partners as $partner)
+                                <div class="partner-logo-slot">
+                                    <img src="{{ asset('storage/' . $partner->logo) }}" alt="{{ $partner->name }}" loading="lazy">
+                                </div>
+                            @endforeach
+                            {{-- Duplicate for seamless loop --}}
+                            @foreach($partners as $partner)
+                                <div class="partner-logo-slot">
+                                    <img src="{{ asset('storage/' . $partner->logo) }}" alt="{{ $partner->name }}" loading="lazy">
                                 </div>
                             @endforeach
                         </div>
@@ -99,30 +112,50 @@
     </section>
 
     <!-- About Section -->
-
     <section class="about-section py-5">
         <div class="container">
             <div class="row">
-                <div class="col-lg-3 mb-4">
-                    <span class="badge bg-light text-burgundy mb-3">ABOUT US</span>
-                </div>
-                <div class="col-lg-9 mb-4">
+                <div class="col-12 mb-4">
+                    <h2 class="section-heading">About Us</h2>
                     <p class="lead">Our mission is to transform communication offerings into an integrated delivery model that provides our clients with one single point of contact for their entire communication programs and all strategic perspectives of their brands.</p>
                 </div>
             </div>
             <div class="row g-4">
                 <div class="col-lg-8">
-                    <img src="{{ asset('assets/img/about-1.png') }}" alt="About RoyalWay Media - Our team in action" class="img-fluid border-radius-lg shadow" loading="lazy" width="800" height="500">
+                    @if(count($aboutSliderImages) > 0)
+                        <div class="about-slider" id="aboutSlider">
+                            @foreach($aboutSliderImages as $index => $image)
+                                <img src="{{ asset('storage/' . $image) }}"
+                                     alt="About RoyalWay Media"
+                                     class="about-slider-image {{ $index === 0 ? 'active' : '' }}"
+                                     loading="{{ $index === 0 ? 'eager' : 'lazy' }}">
+                            @endforeach
+                            @if(count($aboutSliderImages) > 1)
+                                <div class="about-slider-dots">
+                                    @foreach($aboutSliderImages as $index => $image)
+                                        <button class="about-slider-dot {{ $index === 0 ? 'active' : '' }}"
+                                                data-index="{{ $index }}"
+                                                aria-label="Go to slide {{ $index + 1 }}"></button>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    @else
+                        <img src="{{ asset('assets/img/about-1.png') }}" alt="About RoyalWay Media - Our team in action" class="img-fluid border-radius-lg shadow" loading="lazy" width="800" height="500">
+                    @endif
                 </div>
                 <div class="col-lg-4">
-                    <img src="{{ asset('assets/img/about-2.png') }}" alt="RoyalWay Media team collaboration" class="img-fluid border-radius-lg shadow" loading="lazy" width="400" height="500">
+                    @if($aboutImage2 && \Illuminate\Support\Facades\Storage::disk('public')->exists($aboutImage2))
+                        <img src="{{ asset('storage/' . $aboutImage2) }}" alt="RoyalWay Media team collaboration" class="img-fluid border-radius-lg shadow" loading="lazy" width="400" height="500">
+                    @else
+                        <img src="{{ asset('assets/img/about-2.png') }}" alt="RoyalWay Media team collaboration" class="img-fluid border-radius-lg shadow" loading="lazy" width="400" height="500">
+                    @endif
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Stats Section -->
-
     <section class="stats-section py-5 bg-black">
         <div class="container">
             <div class="row text-center text-white align-items-center">
@@ -142,6 +175,7 @@
             <div class="row mb-4">
                 <div class="col-12">
                     <span class="badge bg-light text-burgundy mb-3">OUR SERVICES</span>
+                    <h2 class="section-heading">What We Do</h2>
                     <p class="section-intro" style="white-space: normal; word-break: normal;">We help businesses solve their toughest communication and operational challenges — driving real, measurable returns.</p>
                 </div>
             </div>
@@ -165,14 +199,34 @@
         </div>
     </section>
 
-    <!-- Projects Section -->
+    <!-- CTA Section -->
+    <section class="cta-section py-5">
+        <div class="container">
+            <div class="row justify-content-center text-center">
+                <div class="col-lg-8">
+                    <h2 class="cta-title text-white mb-3">{{ $ctaTitle }}</h2>
+                    <p class="cta-subtitle text-white mb-4">{{ $ctaSubtitle }}</p>
+                    <div class="cta-buttons">
+                        <a href="{{ $ctaButtonLink }}" class="btn btn-light btn-lg me-2 mb-2">{{ $ctaButtonText }}</a>
+                        @if($ctaShowWhatsapp)
+                            <a href="{{ $waLink }}" class="btn btn-outline-light btn-lg mb-2" target="_blank" rel="noopener">
+                                <i class="fa-brands fa-whatsapp me-2"></i>Chat on WhatsApp
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
+    <!-- Projects Section -->
     <section class="projects-section py-5">
         <div class="container-fluid">
             <div class="container">
                 <div class="row mb-4">
                     <div class="col-12">
                         <span class="badge bg-light text-burgundy mb-3">Best Projects</span>
+                        <h2 class="section-heading">Our Work</h2>
                         <p class="section-intro" style="white-space: normal; word-break: normal;">Effective communications and events solutions, delivered with impact.</p>
                     </div>
                 </div>
@@ -182,11 +236,13 @@
                     @foreach($featuredProjects as $project)
                         <div class="project-card">
                             <div class="project-image">
+                                @if($project->category)
+                                    <span class="category-pill">{{ $project->category }}</span>
+                                @endif
                                 <img src="{{ asset('storage/' . $project->featured_image) }}" alt="{{ $project->title }}" class="img-fluid" loading="lazy" width="400" height="300">
                             </div>
                             <div class="project-content">
-                                <span class="project-tag">{{ $project->category }}</span>
-                                <p class="fw-700 text-dark-emphasis mt-3 mb-2">{{ $project->title }}</p>
+                                <p class="fw-700 text-dark-emphasis mt-3 mb-2 card-title">{{ $project->title }}</p>
                                 <p class="text-muted mb-3">{{ Str::limit($project->description, 100) }}</p>
                                 <a href="{{ route('projects.show', $project->slug) }}" class="cta-link">Learn More <i class="fas fa-arrow-right ms-2"></i></a>
                             </div>
@@ -260,6 +316,73 @@
 
     // Ensure video stays muted (some browsers may unmute)
     video.muted = true;
+})();
+
+// About section slider
+(function() {
+    'use strict';
+
+    var slider = document.getElementById('aboutSlider');
+    if (!slider) return;
+
+    var images = slider.querySelectorAll('.about-slider-image');
+    var dots = slider.querySelectorAll('.about-slider-dot');
+    if (images.length <= 1) return;
+
+    var currentIndex = 0;
+    var interval = null;
+    var isPaused = false;
+    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function showSlide(index) {
+        images.forEach(function(img, i) {
+            img.classList.toggle('active', i === index);
+        });
+        dots.forEach(function(dot, i) {
+            dot.classList.toggle('active', i === index);
+        });
+        currentIndex = index;
+    }
+
+    function nextSlide() {
+        if (isPaused) return;
+        var next = (currentIndex + 1) % images.length;
+        showSlide(next);
+    }
+
+    function startAutoplay() {
+        if (prefersReducedMotion) return;
+        interval = setInterval(nextSlide, 5000);
+    }
+
+    function stopAutoplay() {
+        if (interval) {
+            clearInterval(interval);
+            interval = null;
+        }
+    }
+
+    // Dot click handlers
+    dots.forEach(function(dot) {
+        dot.addEventListener('click', function() {
+            var index = parseInt(this.getAttribute('data-index'), 10);
+            showSlide(index);
+            stopAutoplay();
+            startAutoplay();
+        });
+    });
+
+    // Pause on hover
+    slider.addEventListener('mouseenter', function() {
+        isPaused = true;
+    });
+
+    slider.addEventListener('mouseleave', function() {
+        isPaused = false;
+    });
+
+    // Start autoplay
+    startAutoplay();
 })();
 </script>
 @endpush

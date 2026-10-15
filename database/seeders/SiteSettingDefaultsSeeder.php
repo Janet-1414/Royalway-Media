@@ -51,6 +51,17 @@ class SiteSettingDefaultsSeeder extends Seeder
                 ['number' => '150+', 'label' => 'Satisfied Customers'],
             ]), 'type' => 'json', 'group' => 'homepage'],
 
+            // Homepage CTA
+            ['key' => 'cta_title', 'value' => 'Ready to tell your story?', 'type' => 'text', 'group' => 'homepage'],
+            ['key' => 'cta_subtitle', 'value' => 'From strategy to events and media, one team delivers your communication from brief to results.', 'type' => 'textarea', 'group' => 'homepage'],
+            ['key' => 'cta_button_text', 'value' => 'Start a Project', 'type' => 'text', 'group' => 'homepage'],
+            ['key' => 'cta_button_link', 'value' => '/contact', 'type' => 'text', 'group' => 'homepage'],
+            ['key' => 'cta_show_whatsapp', 'value' => '1', 'type' => 'boolean', 'group' => 'homepage'],
+
+            // Homepage About Images
+            ['key' => 'about_slider_images', 'value' => '[]', 'type' => 'json', 'group' => 'homepage'],
+            ['key' => 'about_image_2', 'value' => '', 'type' => 'image', 'group' => 'homepage'],
+
             // WhatsApp
             ['key' => 'whatsapp_enabled', 'value' => '1', 'type' => 'boolean', 'group' => 'whatsapp'],
             ['key' => 'whatsapp_number', 'value' => '256772464686', 'type' => 'text', 'group' => 'whatsapp'],
@@ -65,6 +76,10 @@ class SiteSettingDefaultsSeeder extends Seeder
 
             // Company Profile
             ['key' => 'company_profile_pdf', 'value' => 'site/royalway-media-company-profile.pdf', 'type' => 'file', 'group' => 'general'],
+
+            // Security - Spam Protection
+            ['key' => 'spam_blocked_words', 'value' => "backlinks\nlink building\nguest post\nb2b data\nb2b leads\nlead generation\nleads database\nemail list\nwikipedia page\nrank your website\nfirst page of google\nweb traffic\ncasino\ncrypto\nbitcoin\nviagra\nloan offer\nspam", 'type' => 'textarea', 'group' => 'security'],
+            ['key' => 'spam_blocked_domains', 'value' => "mail.ru\nbk.ru\nlist.ru\ninbox.ru\nyandex.ru\nultraleadgeneration.co\nfreeb2bdata.org\nproonlinepage.com\ntxt.att.net", 'type' => 'textarea', 'group' => 'security'],
         ];
 
         foreach ($defaults as $setting) {

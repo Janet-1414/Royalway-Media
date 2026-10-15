@@ -70,6 +70,16 @@
                 <div class="col-lg-6 col-12">
                     <form class="contact-form" id="contactForm" action="{{ route('contact.store') }}" method="POST">
                         @csrf
+                        {{-- Spam protection: honeypot (hidden from real users) --}}
+                        <div style="position: absolute; left: -9999px;" aria-hidden="true">
+                            <label for="website">Leave this empty</label>
+                            <input type="text" name="website" id="website" tabindex="-1" autocomplete="off">
+                        </div>
+                        {{-- Spam protection: timing token --}}
+                        <input type="hidden" name="form_started_at" value="{{ $formTimestamp ?? '' }}">
+                        {{-- reCAPTCHA token --}}
+                        <input type="hidden" name="g-recaptcha-response" id="recaptchaToken">
+
                         <div class="mb-4">
                             <label class="form-label text-muted">Input Your Name</label>
                             <input type="text" name="name" class="form-control form-control-lg @error('name') is-invalid @enderror" placeholder="Your name" value="{{ old('name') }}" required>
@@ -92,6 +102,11 @@
                             @enderror
                         </div>
                         <button type="submit" class="btn btn-burgundy btn-lg w-100">Send Message</button>
+                        <p class="recaptcha-notice text-center">
+                            This site is protected by reCAPTCHA and the Google
+                            <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a> and
+                            <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms of Service</a> apply.
+                        </p>
                     </form>
                 </div>
             </div>
@@ -232,3 +247,25 @@
         </div>
     </section>
 @endsection
+
+@push('scripts')
+@if(config('services.recaptcha.site_key'))
+<script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('contactForm');
+    if (!form) return;
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        grecaptcha.ready(function() {
+            grecaptcha.execute('{{ config('services.recaptcha.site_key') }}', {action: 'contact'}).then(function(token) {
+                document.getElementById('recaptchaToken').value = token;
+                form.submit();
+            });
+        });
+    });
+});
+</script>
+@endif
+@endpush

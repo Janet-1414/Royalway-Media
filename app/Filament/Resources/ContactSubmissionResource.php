@@ -1,14 +1,12 @@
 <?php
 /**
  * File Path: app/Filament/Resources/ContactSubmissionResource.php
- *
- * Run: php artisan make:filament-resource ContactSubmission
- * Then replace content with this file
  */
 
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ContactSubmissionResource\Pages;
+use App\Mail\ContactReplyMail;
 use App\Models\ContactSubmission;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -16,6 +14,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class ContactSubmissionResource extends Resource
 {
@@ -31,7 +31,7 @@ class ContactSubmissionResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::where('status', 'new')->count();
+        return static::getModel()::where('status', 'new')->count() ?: null;
     }
 
     public static function form(Form $form): Form
@@ -59,7 +59,7 @@ class ContactSubmissionResource extends Resource
                     ])
                     ->columns(2),
 
-                Forms\Components\Section::make('Status & Metadata')
+                Forms\Components\Section::make('Status')
                     ->schema([
                         Forms\Components\Select::make('status')
                             ->options([
@@ -68,7 +68,30 @@ class ContactSubmissionResource extends Resource
                                 'replied' => 'Replied',
                             ])
                             ->required(),
+                    ]),
 
+                Forms\Components\Section::make('Reply')
+                    ->schema([
+                        Forms\Components\Placeholder::make('reply_info')
+                            ->label('Last Reply')
+                            ->content(fn ($record) => $record?->replied_at
+                                ? "Sent on {$record->replied_at->format('M d, Y H:i')} by " . ($record->repliedByUser?->name ?? 'Unknown')
+                                : 'No reply sent yet'),
+
+                        Forms\Components\Placeholder::make('reply_subject_display')
+                            ->label('Subject')
+                            ->content(fn ($record) => $record?->reply_subject ?? '—')
+                            ->visible(fn ($record) => $record?->replied_at !== null),
+
+                        Forms\Components\Placeholder::make('reply_message_display')
+                            ->label('Message')
+                            ->content(fn ($record) => $record?->reply_message ?? '—')
+                            ->visible(fn ($record) => $record?->replied_at !== null),
+                    ])
+                    ->visible(fn ($record) => $record !== null),
+
+                Forms\Components\Section::make('Technical Details')
+                    ->schema([
                         Forms\Components\TextInput::make('ip_address')
                             ->disabled(),
 
@@ -77,7 +100,8 @@ class ContactSubmissionResource extends Resource
                             ->disabled()
                             ->columnSpanFull(),
                     ])
-                    ->columns(2),
+                    ->columns(2)
+                    ->collapsed(),
             ]);
     }
 
@@ -121,6 +145,57 @@ class ContactSubmissionResource extends Resource
                     ]),
             ])
             ->actions([
+                Tables\Actions\Action::make('reply')
+                    ->label(fn (ContactSubmission $record) => $record->hasBeenReplied() ? 'Reply Again' : 'Reply')
+                    ->icon('heroicon-o-envelope')
+                    ->color('primary')
+                    ->form([
+                        Forms\Components\Placeholder::make('last_reply_info')
+                            ->label('Last Reply')
+                            ->content(fn (ContactSubmission $record) => $record->replied_at
+                                ? "Sent: {$record->replied_at->format('M d, Y H:i')}\nSubject: {$record->reply_subject}"
+                                : null)
+                            ->visible(fn (ContactSubmission $record) => $record->hasBeenReplied()),
+
+                        Forms\Components\TextInput::make('subject')
+                            ->label('Subject')
+                            ->default('Re: Your message to RoyalWay Media')
+                            ->required()
+                            ->maxLength(255),
+
+                        Forms\Components\Textarea::make('message')
+                            ->label('Message')
+                            ->required()
+                            ->rows(8),
+                    ])
+                    ->action(function (ContactSubmission $record, array $data) {
+                        // Update record
+                        $record->update([
+                            'reply_subject' => $data['subject'],
+                            'reply_message' => $data['message'],
+                            'replied_at' => now(),
+                            'replied_by' => Auth::id(),
+                            'status' => 'replied',
+                        ]);
+
+                        // Send email
+                        try {
+                            Mail::to($record->email)
+                                ->queue(ContactReplyMail::fromContactSubmission($record));
+
+                            Notification::make()
+                                ->success()
+                                ->title('Reply sent successfully')
+                                ->send();
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->danger()
+                                ->title('Failed to send email')
+                                ->body($e->getMessage())
+                                ->send();
+                        }
+                    }),
+
                 Tables\Actions\Action::make('markAsRead')
                     ->label('Mark as Read')
                     ->icon('heroicon-o-eye')
@@ -131,19 +206,6 @@ class ContactSubmissionResource extends Resource
                         Notification::make()
                             ->success()
                             ->title('Marked as read')
-                            ->send();
-                    }),
-
-                Tables\Actions\Action::make('markAsReplied')
-                    ->label('Mark as Replied')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->visible(fn (ContactSubmission $record) => $record->status !== 'replied')
-                    ->action(function (ContactSubmission $record) {
-                        $record->markAsReplied();
-                        Notification::make()
-                            ->success()
-                            ->title('Marked as replied')
                             ->send();
                     }),
 

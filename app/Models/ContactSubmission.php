@@ -1,15 +1,13 @@
 <?php
 /**
  * File Path: app/Models/ContactSubmission.php
- *
- * Run: php artisan make:model ContactSubmission
- * Then replace content with this file
  */
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ContactSubmission extends Model
 {
@@ -20,6 +18,10 @@ class ContactSubmission extends Model
         'email',
         'message',
         'status',
+        'reply_subject',
+        'reply_message',
+        'replied_at',
+        'replied_by',
         'ip_address',
         'user_agent',
     ];
@@ -27,7 +29,16 @@ class ContactSubmission extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'replied_at' => 'datetime',
     ];
+
+    /**
+     * Get the user who replied
+     */
+    public function repliedByUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'replied_by');
+    }
 
     /**
      * Scope for new submissions
@@ -58,7 +69,9 @@ class ContactSubmission extends Model
      */
     public function markAsRead()
     {
-        $this->update(['status' => 'read']);
+        if ($this->status === 'new') {
+            $this->update(['status' => 'read']);
+        }
     }
 
     /**
@@ -75,6 +88,14 @@ class ContactSubmission extends Model
     public function isNew()
     {
         return $this->status === 'new';
+    }
+
+    /**
+     * Check if submission has been replied to
+     */
+    public function hasBeenReplied(): bool
+    {
+        return $this->replied_at !== null;
     }
 
     /**
