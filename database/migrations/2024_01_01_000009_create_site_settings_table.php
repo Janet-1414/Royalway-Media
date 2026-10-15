@@ -1,0 +1,42 @@
+<?php
+/**
+ * File Path: database/migrations/2024_01_01_000009_create_site_settings_table.php
+ *
+ * Run: php artisan make:migration create_site_settings_table
+ * Then replace content with this file
+ */
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('site_settings', function (Blueprint $table) {
+            $table->id();
+            $table->string('key')->unique();
+            $table->text('value')->nullable();
+            $table->string('type')->default('text'); // text, textarea, image, boolean, etc.
+            $table->string('group')->default('general'); // general, contact, social, etc.
+            $table->text('description')->nullable();
+            $table->timestamps();
+
+            // Indexes
+            $table->index('key');
+            $table->index('group');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('site_settings');
+    }
+};

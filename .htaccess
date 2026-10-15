@@ -1,0 +1,26 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block direct access to sensitive files
+    RewriteRule ^(\.env|composer\.(json|lock)|package\.json|webpack\.mix\.js|artisan)$ - [F,L]
+
+    # Allow Let's Encrypt ACME challenges
+    RewriteRule ^\.well-known/ - [L]
+
+    # Redirect all requests to public/
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Deny access to hidden files (dot files) except .well-known
+<FilesMatch "^\.(?!well-known)">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Deny access to sensitive directories
+<IfModule mod_authz_core.c>
+    <DirectoryMatch "^.*/(storage|bootstrap/cache|vendor|node_modules)/">
+        Require all denied
+    </DirectoryMatch>
+</IfModule>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="668px" height="290px" viewBox="0 0 668 290" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>countrywealth-16</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="countrywealth-16" transform="translate(0.8, 0.985)" fill-rule="nonzero">
+            <g id="Group" transform="translate(-0, 0)">
+                <path d="M244.14,54.525 L160.75,6.375 C146.03,-2.125 127.73,-2.125 113.01,6.375 L29.61,54.525 C29.29,54.705 28.99,54.915 28.67,55.105 L84.79,90.505 L136.88,60.435 L209.26,102.225 L209.26,185.805 L136.88,227.595 L89.85,200.445 L33.96,236.015 L113.02,281.655 C120.38,285.905 128.64,288.035 136.89,288.035 C145.14,288.035 153.4,285.915 160.76,281.665 L244.16,233.515 C258.88,225.015 268.03,209.175 268.03,192.175 L268.03,95.875 C268,78.865 258.86,63.025 244.14,54.525 Z" id="Path" fill="#EAAB1C"></path>
+                <polygon id="Path" fill="#430C2E" points="111.89 144.015 -2.84217094e-14 79.415 -2.84217094e-14 208.615"></polygon>
+            </g>
+            <g id="Group" transform="translate(290.8533, 92.5843)" fill="#430C2E">
+                <text id="CountryWealth" font-family="Rubik-Bold, Rubik" font-size="50" font-weight="bold" line-spacing="59">
+                    <tspan x="0" y="47">CountryWealth</tspan>
+                </text>
+                <text id="Advisors" font-family="Rubik-Medium, Rubik" font-size="46.5684" font-weight="400" letter-spacing="1.7">
+                    <tspan x="5" y="100.88">Advisors</tspan>
+                </text>
+            </g>
+        </g>
+    </g>
+</svg>
