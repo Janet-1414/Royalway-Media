@@ -206,24 +206,22 @@
                 @endphp
                 @foreach($homeServices as $svc)
                     <div class="col-lg-3 col-md-6 col-6">
-                        <a href="/services/{{ $svc['slug'] }}" class="project-card text-decoration-none d-block" aria-label="{{ $svc['title'] }}">
-                            <div class="project-image position-relative overflow-hidden">
+                        <div class="project-card">
+                            <div class="project-image">
                                 @php
                                     $imgPath = public_path('storage/services/' . $svc['slug'] . '.jpg');
                                 @endphp
                                 @if(file_exists($imgPath))
-                                    <img src="{{ asset('storage/services/' . $svc['slug'] . '.jpg') }}" alt="{{ $svc['title'] }}" loading="lazy" style="width:100%; height:220px; object-fit:cover;">
+                                    <img src="{{ asset('storage/services/' . $svc['slug'] . '.jpg') }}" alt="{{ $svc['title'] }}" loading="lazy" width="400" height="300">
                                 @else
-                                    <div style="width:100%; height:220px; background:#1a1a2e; display:flex; align-items:center; justify-content:center;">
-                                        <i class="fas fa-concierge-bell fa-2x text-white opacity-25"></i>
-                                    </div>
+                                    <img src="{{ asset('assets/img/about-1.png') }}" alt="{{ $svc['title'] }}" loading="lazy" width="400" height="300">
                                 @endif
-                                <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 60%); pointer-events:none;"></div>
-                                <div style="position:absolute; bottom:0; left:0; right:0; padding:1rem;">
-                                    <p class="text-white fw-semibold mb-0 small">{{ $svc['title'] }}</p>
-                                </div>
                             </div>
-                        </a>
+                            <div class="project-content">
+                                <p class="fw-700 text-dark-emphasis mt-3 mb-2 card-title">{{ $svc['title'] }}</p>
+                                <a href="/services/{{ $svc['slug'] }}" class="cta-link">Learn More <i class="fas fa-arrow-right ms-2"></i></a>
+                            </div>
+                        </div>
                     </div>
                 @endforeach
             </div>

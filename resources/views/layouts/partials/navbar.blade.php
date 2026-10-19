@@ -26,39 +26,13 @@
                                 <a class="nav-link dropdown-toggle" href="{{ route('services.index') }}" role="button">
                                     Services
                                 </a>
-                                <ul class="dropdown-menu p-2" style="min-width: 680px;">
-                                    <li class="row g-2 m-0">
-                                        <div class="col-4">
-                                            <a href="{{ route('services.show', 'marketing-communications') }}" class="dropdown-card d-block text-decoration-none p-3 rounded">
-                                                <p class="fw-semibold text-dark mb-0 small">Marketing Communications</p>
-                                            </a>
-                                        </div>
-                                        <div class="col-4">
-                                            <a href="{{ route('services.show', 'experiential-marketing') }}" class="dropdown-card d-block text-decoration-none p-3 rounded">
-                                                <p class="fw-semibold text-dark mb-0 small">Experiential Marketing</p>
-                                            </a>
-                                        </div>
-                                        <div class="col-4">
-                                            <a href="{{ route('services.show', 'strategic-communications-visibility') }}" class="dropdown-card d-block text-decoration-none p-3 rounded">
-                                                <p class="fw-semibold text-dark mb-0 small">Strategic Communications & Visibility</p>
-                                            </a>
-                                        </div>
-                                        <div class="col-4">
-                                            <a href="{{ route('services.show', 'pr-media-management') }}" class="dropdown-card d-block text-decoration-none p-3 rounded">
-                                                <p class="fw-semibold text-dark mb-0 small">PR & Media Management</p>
-                                            </a>
-                                        </div>
-                                        <div class="col-4">
-                                            <a href="{{ route('services.show', 'corporate-events-planning-management') }}" class="dropdown-card d-block text-decoration-none p-3 rounded">
-                                                <p class="fw-semibold text-dark mb-0 small">Corporate Events Planning & Management</p>
-                                            </a>
-                                        </div>
-                                        <div class="col-4">
-                                            <a href="{{ route('services.show', 'social-behavioral-change-communications') }}" class="dropdown-card d-block text-decoration-none p-3 rounded">
-                                                <p class="fw-semibold text-dark mb-0 small">Social & Behavioral Change Communications</p>
-                                            </a>
-                                        </div>
-                                    </li>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ route('services.show', 'marketing-communications') }}">Marketing Communications</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('services.show', 'experiential-marketing') }}">Experiential Marketing</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('services.show', 'strategic-communications-visibility') }}">Strategic Communications & Visibility</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('services.show', 'pr-media-management') }}">PR & Media Management</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('services.show', 'corporate-events-planning-management') }}">Corporate Events Planning & Management</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('services.show', 'social-behavioral-change-communications') }}">Social & Behavioral Change Communications</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item mx-2">
