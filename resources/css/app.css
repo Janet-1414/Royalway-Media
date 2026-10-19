@@ -9,3 +9,48 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Services mega dropdown */
+@media (min-width: 992px) {
+    #services-dropdown:hover > .dropdown-menu {
+        display: block !important;
+    }
+    #services-dropdown > .dropdown-menu {
+        margin-top: 0;
+        border-top: 3px solid #f5a623;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+}
+
+.dropdown-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    transition: background 0.15s ease, border-color 0.15s ease;
+    min-height: 64px;
+    display: flex !important;
+    align-items: center;
+}
+
+.dropdown-card:hover {
+    background: #fff3e0;
+    border-color: #f5a623;
+}
+
+.dropdown-card p {
+    line-height: 1.3;
+    color: #1a1a2e !important;
+}
+
+.partner-logo-slot img,
+.partners-section img,
+.partners img {
+    filter: none !important;
+    opacity: 1 !important;
+    transition: opacity 0.2s ease;
+}
+
+.partner-logo-slot img:hover,
+.partners-section img:hover,
+.partners img:hover {
+    opacity: 0.85 !important;
+}
