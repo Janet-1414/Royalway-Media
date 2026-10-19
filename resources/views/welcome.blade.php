@@ -181,15 +181,54 @@
             </div>
             <div class="row g-3">
                 @php
-                    // Get 4 services: featured first, then top up with other active services by order
-                    $featuredServices = $services->where('is_featured', true)->take(4);
-                    $remainingCount = 4 - $featuredServices->count();
-                    $nonFeatured = $remainingCount > 0 ? $services->where('is_featured', '!=', true)->take($remainingCount) : collect();
-                    $homeServices = $featuredServices->concat($nonFeatured)->take(4);
+                    $homeServices = [
+                        [
+                            'slug' => 'marketing-communications',
+                            'title' => 'Marketing Communications',
+                            'description' => 'We craft compelling marketing campaigns that connect your brand with the right audiences through strategic messaging and creative execution.',
+                        ],
+                        [
+                            'slug' => 'experiential-marketing',
+                            'title' => 'Experiential Marketing',
+                            'description' => 'We design immersive brand experiences and activations that create lasting emotional connections between your brand and your audience.',
+                        ],
+                        [
+                            'slug' => 'strategic-communications-visibility',
+                            'title' => 'Strategic Communications & Visibility',
+                            'description' => 'We build and protect your reputation through strategic communications planning that drives visibility and stakeholder engagement.',
+                        ],
+                        [
+                            'slug' => 'pr-media-management',
+                            'title' => 'PR & Media Management',
+                            'description' => 'We manage your media relationships and press coverage to ensure your story is told accurately and reaches the right audiences.',
+                        ],
+                    ];
                 @endphp
-                @foreach($homeServices as $service)
+                @foreach($homeServices as $svc)
                     <div class="col-lg-3 col-md-6 col-6">
-                        @include('components.service-tile', ['service' => $service])
+                        <div class="service-tile-wrapper">
+                            <a href="/services/{{ $svc['slug'] }}" class="service-tile" aria-label="{{ $svc['title'] }}">
+                                @php
+                                    $imgPath = public_path('storage/services/' . $svc['slug'] . '.jpg');
+                                @endphp
+                                @if(file_exists($imgPath))
+                                    <img src="{{ asset('storage/services/' . $svc['slug'] . '.jpg') }}" alt="{{ $svc['title'] }}" loading="lazy">
+                                @else
+                                    <div class="service-tile-fallback">
+                                        <i class="fas fa-concierge-bell"></i>
+                                        <span class="fallback-chip">Service</span>
+                                    </div>
+                                @endif
+                                <div class="service-tile-overlay">
+                                    <span class="service-tile-title">{{ $svc['title'] }}</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </a>
+                            <p class="text-muted small mt-2 mb-2">{{ $svc['description'] }}</p>
+                            <a href="/services/{{ $svc['slug'] }}" class="btn btn-burgundy btn-view-service w-100">
+                                Learn More <i class="fas fa-arrow-right ms-2"></i>
+                            </a>
+                        </div>
                     </div>
                 @endforeach
             </div>

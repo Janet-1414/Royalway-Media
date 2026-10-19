@@ -44,6 +44,10 @@ class ServiceResource extends Resource
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),
 
+                        Forms\Components\TextInput::make('tagline')
+                            ->maxLength(255)
+                            ->helperText('Short tagline shown in hero section'),
+
                         Forms\Components\Select::make('category')
                             ->options([
                                 'Media & PR' => 'Media & PR',
@@ -83,6 +87,25 @@ class ServiceResource extends Resource
                     ->schema([
                         Forms\Components\RichEditor::make('full_description')
                             ->columnSpanFull(),
+
+                        Forms\Components\RichEditor::make('content')
+                            ->label('Extended Content')
+                            ->helperText('Additional rich content for the service page')
+                            ->columnSpanFull(),
+                    ]),
+
+                Forms\Components\Section::make('Features List')
+                    ->schema([
+                        Forms\Components\Repeater::make('features')
+                            ->schema([
+                                Forms\Components\TextInput::make('title')
+                                    ->required(),
+                                Forms\Components\Textarea::make('description')
+                                    ->rows(2),
+                            ])
+                            ->columnSpanFull()
+                            ->collapsible()
+                            ->itemLabel(fn (array $state): ?string => $state['title'] ?? null),
                     ]),
 
                 Forms\Components\Section::make('Media')

@@ -19,12 +19,15 @@ class Service extends Model
     protected $fillable = [
         'title',
         'slug',
+        'tagline',
         'category',
         'headline',
         'intro',
         'checklist',
         'short_description',
         'full_description',
+        'content',
+        'features',
         'icon',
         'image',
         'poster_image',
@@ -42,6 +45,7 @@ class Service extends Model
         'order' => 'integer',
         'checklist' => 'array',
         'gallery' => 'array',
+        'features' => 'array',
     ];
 
     /**

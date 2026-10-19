@@ -6,85 +6,87 @@
 
 @section('content')
 
-    <!-- Page Header -->
-    <section class="page-header-section">
-        <div class="container">
-            <div class="row">
-                <div class="col-12 text-center">
-                    <h1 class="text-white">{{ $service->title }}</h1>
-                    @if($service->category)
-                        <p class="text-white-50 mb-0">{{ $service->category }}</p>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Service Intro Section -->
-    <section class="service-intro-section py-5">
+    <!-- A. HERO SECTION -->
+    <section class="page-header-section py-5" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-lg-7 col-12 mb-4 mb-lg-0">
-                    @if($service->category)
-                        <span class="badge bg-light text-burgundy mb-3">{{ $service->category }}</span>
-                    @endif
-
-                    @if($service->headline)
-                        <h2 class="mb-3">{{ $service->headline }}</h2>
-                    @endif
-
-                    @if($service->intro)
-                        <p class="text-muted mb-4" style="font-size: 1.1rem; line-height: 1.7;">{{ $service->intro }}</p>
-                    @elseif($service->short_description)
-                        <p class="text-muted mb-4" style="font-size: 1.1rem; line-height: 1.7;">{{ $service->short_description }}</p>
-                    @endif
-
-                    @if($service->checklist && count($service->checklist) > 0)
-                        <ul class="service-checklist">
-                            @foreach($service->checklist as $item)
-                                <li><i class="fas fa-check text-burgundy me-2"></i>{{ $item }}</li>
-                            @endforeach
-                        </ul>
-                    @endif
-
-                    <div class="mt-4">
-                        <a href="{{ route('contact.index') }}" class="btn btn-burgundy me-2">Start a Project</a>
-                        <a href="{{ route('event-brief.index') }}" class="btn btn-outline-burgundy">Event Brief</a>
-                    </div>
+                <div class="col-lg-7">
+                    <p class="text-uppercase text-warning fw-semibold mb-2 small">Our Services</p>
+                    <h1 class="text-white fw-bold mb-3">{{ $service->title }}</h1>
+                    <p class="text-white-50 fs-5">{{ $service->tagline ?? $service->short_description ?? 'Strategic. Impactful. Results-driven.' }}</p>
+                    <a href="{{ route('contact.index') }}" class="btn btn-warning mt-3 fw-semibold px-4">Get In Touch</a>
                 </div>
-                <div class="col-lg-5 col-12">
+                <div class="col-lg-5 d-none d-lg-block text-end">
                     @if($service->poster_image_url)
-                        <img src="{{ $service->poster_image_url }}"
-                             alt="{{ $service->title }}"
-                             class="img-fluid service-poster-image">
+                        <img src="{{ $service->poster_image_url }}" alt="{{ $service->title }}" class="img-fluid rounded" style="max-height:320px; object-fit:cover; width:100%;">
                     @elseif($service->image_url)
-                        <img src="{{ $service->image_url }}"
-                             alt="{{ $service->title }}"
-                             class="img-fluid service-poster-image">
+                        <img src="{{ $service->image_url }}" alt="{{ $service->title }}" class="img-fluid rounded" style="max-height:320px; object-fit:cover; width:100%;">
+                    @else
+                        <div style="height:320px; background:rgba(255,255,255,0.05); border-radius:8px;"></div>
                     @endif
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Full Description -->
-    @if($service->full_description)
-        <section class="service-description-section py-5 bg-light">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-10 col-12 mx-auto">
-                        <div class="service-content-body">
-                            {!! $service->full_description !!}
+    <!-- B. INTRODUCTION -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <p class="section-intro">{{ $service->intro ?? $service->full_description ?? $service->short_description ?? 'Full introduction coming soon.' }}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- C. SERVICE FEATURES -->
+    @php
+        $featuresList = $service->features ?? $service->checklist ?? [];
+    @endphp
+    @if($featuresList && count($featuresList) > 0)
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="fw-bold mb-4 text-center">What We Offer</h2>
+            <div class="row g-4">
+                @foreach($featuresList as $feature)
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm p-3">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <span class="bg-warning rounded-circle d-inline-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+                                    <i class="fas fa-check text-dark fw-bold"></i>
+                                </span>
+                            </div>
+                            <p class="fw-semibold mb-1">{{ is_array($feature) ? ($feature['title'] ?? '') : $feature }}</p>
+                            @if(is_array($feature) && isset($feature['description']))
+                                <p class="text-muted small mb-0">{{ $feature['description'] }}</p>
+                            @endif
                         </div>
                     </div>
                 </div>
+                @endforeach
             </div>
-        </section>
+        </div>
+    </section>
+    @endif
+
+    <!-- D. FULL SERVICE DESCRIPTION -->
+    @if($service->content || $service->full_description)
+    <section class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-9">
+                    <div class="prose">{!! $service->content ?? $service->full_description !!}</div>
+                </div>
+            </div>
+        </div>
+    </section>
     @endif
 
     <!-- Related Projects -->
     @if($projects->count() > 0)
-        <section class="py-5">
+        <section class="py-5 bg-light">
             <div class="container">
                 <div class="section-header mb-4">
                     <h2>Projects Under This Service</h2>
@@ -119,7 +121,7 @@
 
     <!-- Materials Gallery -->
     @if($service->gallery && count($service->gallery) > 0)
-        <section class="py-5 bg-light">
+        <section class="py-5">
             <div class="container">
                 <h2 class="mb-4">Materials We Have Produced</h2>
                 <div class="service-gallery-grid">
@@ -137,7 +139,7 @@
 
     <!-- Other Services -->
     @if($otherServices->count() > 0)
-        <section class="py-5">
+        <section class="py-5 bg-light">
             <div class="container">
                 <div class="section-header mb-4">
                     <h2>Other Services</h2>
@@ -159,19 +161,12 @@
         </section>
     @endif
 
-    <!-- CTA Section -->
-    <section class="event-cta-section py-5">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-8 col-12 mb-3 mb-lg-0">
-                    <h2 class="text-white mb-0">Ready to Start Your Project?</h2>
-                    <p class="text-white-50 mb-0">Let's discuss how we can help elevate your brand</p>
-                </div>
-                <div class="col-lg-4 col-12 text-lg-end">
-                    <a href="{{ route('contact.index') }}" class="btn btn-burgundy me-2">Contact Us</a>
-                    <a href="{{ route('event-brief.index') }}" class="btn btn-outline-light">Event Brief</a>
-                </div>
-            </div>
+    <!-- E. CALL TO ACTION -->
+    <section class="py-5" style="background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);">
+        <div class="container text-center">
+            <h2 class="text-white fw-bold mb-3">Ready to Get Started?</h2>
+            <p class="text-white-50 mb-4">Let's work together to achieve your communications and marketing goals.</p>
+            <a href="{{ route('contact.index') }}" class="btn btn-warning btn-lg fw-semibold px-5">Contact Us Today</a>
         </div>
     </section>
 @endsection

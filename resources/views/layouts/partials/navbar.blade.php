@@ -1,10 +1,10 @@
-<div class="container position-sticky z-index-sticky top-0 bg-white">
+<div class="container-fluid position-sticky z-index-sticky top-0 bg-white">
     <div class="row">
         <div class="col-12">
             <nav class="navbar navbar-expand-lg blur blur-rounded top-0 z-index-3 position-absolute my-3 py-2 start-0 end-0 border-burgundy">
                 <div class="container-fluid px-0">
                     <a href="{{ route('home') }}">
-                        <img src="{{ asset('assets/img/logo.svg') }}" alt="RoyalWay Media" class="mx-3" width="137px">
+                        <img src="{{ asset('assets/img/logo.svg') }}" alt="RoyalWay Media" class="mx-3" width="160px">
                     </a>
                     <button class="navbar-toggler shadow-none ms-md-2" type="button" data-bs-toggle="collapse" data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon mt-2">
@@ -22,8 +22,18 @@
                             <li class="nav-item mx-2">
                                 <a href="{{ route('about') }}" class="nav-link ps-2 d-flex cursor-pointer {{ request()->routeIs('about') ? 'active' : '' }}">About Us</a>
                             </li>
-                            <li class="nav-item mx-2">
-                                <a href="{{ route('services.index') }}" class="nav-link ps-2 d-flex cursor-pointer {{ request()->routeIs('services.*') ? 'active' : '' }}">Services</a>
+                            <li class="nav-item dropdown mx-2">
+                                <a href="{{ route('services.index') }}" class="nav-link ps-2 d-flex cursor-pointer dropdown-toggle {{ request()->routeIs('services.*') ? 'active' : '' }}" id="servicesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Services</a>
+                                <ul class="dropdown-menu" aria-labelledby="servicesDropdown">
+                                    <li><a class="dropdown-item" href="/services/marketing-communications">Marketing Communications</a></li>
+                                    <li><a class="dropdown-item" href="/services/experiential-marketing">Experiential Marketing</a></li>
+                                    <li><a class="dropdown-item" href="/services/strategic-communications-visibility">Strategic Communications & Visibility</a></li>
+                                    <li><a class="dropdown-item" href="/services/pr-media-management">PR & Media Management</a></li>
+                                    <li><a class="dropdown-item" href="/services/corporate-events-planning-management">Corporate Events Planning & Management</a></li>
+                                    <li><a class="dropdown-item" href="/services/social-behavioral-change-communications">Social & Behavioral Change Communications</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ route('services.index') }}">View All Services</a></li>
+                                </ul>
                             </li>
                             <li class="nav-item mx-2">
                                 <a href="{{ route('projects.index') }}" class="nav-link ps-2 d-flex cursor-pointer {{ request()->routeIs('projects.*') ? 'active' : '' }}">Projects</a>
