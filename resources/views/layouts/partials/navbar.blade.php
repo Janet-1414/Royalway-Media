@@ -23,10 +23,10 @@
                                 <a href="{{ route('about') }}" class="nav-link ps-2 d-flex cursor-pointer {{ request()->routeIs('about') ? 'active' : '' }}">About Us</a>
                             </li>
                             <li class="nav-item dropdown" id="services-dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle" href="{{ route('services.index') }}" role="button">
                                     Services
                                 </a>
-                                <ul class="dropdown-menu p-2" style="min-width: 680px; display:none;">
+                                <ul class="dropdown-menu p-2" style="min-width: 680px;">
                                     <li class="row g-2 m-0">
                                         <div class="col-4">
                                             <a href="{{ route('services.show', 'marketing-communications') }}" class="dropdown-card d-block text-decoration-none p-3 rounded">

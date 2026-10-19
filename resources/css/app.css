@@ -12,13 +12,21 @@
 
 /* Services mega dropdown */
 @media (min-width: 992px) {
-    #services-dropdown:hover > .dropdown-menu {
-        display: block !important;
+    #services-dropdown {
+        position: relative;
     }
     #services-dropdown > .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
         margin-top: 0;
-        border-top: 3px solid #f5a623;
+        border-top: 3px solid #a0003a;
         box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        z-index: 9999;
+    }
+    #services-dropdown:hover > .dropdown-menu {
+        display: block !important;
     }
 }
 

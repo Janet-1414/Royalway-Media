@@ -206,29 +206,24 @@
                 @endphp
                 @foreach($homeServices as $svc)
                     <div class="col-lg-3 col-md-6 col-6">
-                        <div class="service-tile-wrapper">
-                            <a href="/services/{{ $svc['slug'] }}" class="service-tile" aria-label="{{ $svc['title'] }}">
+                        <a href="/services/{{ $svc['slug'] }}" class="project-card text-decoration-none d-block" aria-label="{{ $svc['title'] }}">
+                            <div class="project-image position-relative overflow-hidden">
                                 @php
                                     $imgPath = public_path('storage/services/' . $svc['slug'] . '.jpg');
                                 @endphp
                                 @if(file_exists($imgPath))
-                                    <img src="{{ asset('storage/services/' . $svc['slug'] . '.jpg') }}" alt="{{ $svc['title'] }}" loading="lazy">
+                                    <img src="{{ asset('storage/services/' . $svc['slug'] . '.jpg') }}" alt="{{ $svc['title'] }}" loading="lazy" style="width:100%; height:220px; object-fit:cover;">
                                 @else
-                                    <div class="service-tile-fallback">
-                                        <i class="fas fa-concierge-bell"></i>
-                                        <span class="fallback-chip">Service</span>
+                                    <div style="width:100%; height:220px; background:#1a1a2e; display:flex; align-items:center; justify-content:center;">
+                                        <i class="fas fa-concierge-bell fa-2x text-white opacity-25"></i>
                                     </div>
                                 @endif
-                                <div class="service-tile-overlay">
-                                    <span class="service-tile-title">{{ $svc['title'] }}</span>
-                                    <i class="fas fa-arrow-right"></i>
+                                <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 60%); pointer-events:none;"></div>
+                                <div style="position:absolute; bottom:0; left:0; right:0; padding:1rem;">
+                                    <p class="text-white fw-semibold mb-0 small">{{ $svc['title'] }}</p>
                                 </div>
-                            </a>
-                            <p class="text-muted small mt-2 mb-2">{{ $svc['description'] }}</p>
-                            <a href="/services/{{ $svc['slug'] }}" class="btn btn-burgundy btn-view-service w-100">
-                                Learn More <i class="fas fa-arrow-right ms-2"></i>
-                            </a>
-                        </div>
+                            </div>
+                        </a>
                     </div>
                 @endforeach
             </div>
