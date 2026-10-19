@@ -218,7 +218,7 @@
                                 @endif
                             </div>
                             <div class="project-content">
-                                <p class="fw-700 text-dark-emphasis mt-3 mb-2 card-title">{{ $svc['title'] }}</p>
+                                <p class="fw-700 text-dark-emphasis mb-2 card-title">{{ $svc['title'] }}</p>
                                 <a href="/services/{{ $svc['slug'] }}" class="cta-link">Learn More <i class="fas fa-arrow-right ms-2"></i></a>
                             </div>
                         </div>
@@ -274,7 +274,7 @@
                                 <img src="{{ asset('storage/' . $project->featured_image) }}" alt="{{ $project->title }}" class="img-fluid" loading="lazy" width="400" height="300">
                             </div>
                             <div class="project-content">
-                                <p class="fw-700 text-dark-emphasis mt-3 mb-2 card-title">{{ $project->title }}</p>
+                                <p class="fw-700 text-dark-emphasis mb-2 card-title">{{ $project->title }}</p>
                                 <p class="text-muted mb-3">{{ Str::limit($project->description, 100) }}</p>
                                 <a href="{{ route('projects.show', $project->slug) }}" class="cta-link">Learn More <i class="fas fa-arrow-right ms-2"></i></a>
                             </div>

@@ -106,7 +106,7 @@
                                     </div>
                                     <div class="project-content">
                                         <span class="project-tag">{{ $project->category }}</span>
-                                        <p class="fw-700 text-dark-emphasis mt-3 mb-2">{{ $project->title }}</p>
+                                        <p class="fw-700 text-dark-emphasis mb-2">{{ $project->title }}</p>
                                         <p class="text-muted mb-3">{{ Str::limit($project->description, 100) }}</p>
                                         <span class="cta-link">Learn More <i class="fas fa-arrow-right ms-2"></i></span>
                                     </div>

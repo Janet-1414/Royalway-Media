@@ -377,7 +377,7 @@
                                         @endif
                                     </div>
                                     <div class="project-content">
-                                        <p class="fw-700 text-dark-emphasis mt-3 mb-2 card-title">{{ $related->title }}</p>
+                                        <p class="fw-700 text-dark-emphasis mb-2 card-title">{{ $related->title }}</p>
                                         <p class="text-muted mb-3">{{ Str::limit($related->description, 80) }}</p>
                                         <span class="cta-link">Learn More <i class="fas fa-arrow-right ms-2"></i></span>
                                     </div>

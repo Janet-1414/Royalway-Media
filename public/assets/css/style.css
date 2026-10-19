@@ -401,7 +401,14 @@ nav.navbar {
 }
 
 .project-content {
-    padding: 1.5rem;
+    padding: 14px 16px 16px;
+}
+
+.project-content > p:first-child,
+.project-content > h4:first-child,
+.project-content > .project-tag + p,
+.project-content > .project-tag + h4 {
+    margin-top: 0;
 }
 
 .project-tag {

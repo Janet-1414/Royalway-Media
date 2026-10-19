@@ -67,7 +67,7 @@
                                 @default {{ ucfirst($resource->type) }}
                             @endswitch
                         </span>
-                                <h4 class="text-dark-emphasis mt-3 mb-2">{{ $resource->title }}</h4>
+                                <h4 class="text-dark-emphasis mb-2">{{ $resource->title }}</h4>
                                 @if($resource->excerpt)
                                     <p class="text-muted mb-3">{{ Str::limit($resource->excerpt, 100) }}</p>
                                 @endif
