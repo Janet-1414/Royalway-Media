@@ -22,14 +22,13 @@
                     <a class="nav-link dropdown-toggle" href="{{ route('services.index') }}" role="button">
                         Services
                     </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('services.show', 'marketing-communications') }}">Marketing Communications</a></li>
-                        <li><a class="dropdown-item" href="{{ route('services.show', 'experiential-marketing') }}">Experiential Marketing</a></li>
-                        <li><a class="dropdown-item" href="{{ route('services.show', 'strategic-communications-visibility') }}">Strategic Communications & Visibility</a></li>
-                        <li><a class="dropdown-item" href="{{ route('services.show', 'pr-media-management') }}">PR & Media Management</a></li>
-                        <li><a class="dropdown-item" href="{{ route('services.show', 'corporate-events-planning-management') }}">Corporate Events Planning & Management</a></li>
-                        <li><a class="dropdown-item" href="{{ route('services.show', 'social-behavioral-change-communications') }}">Social & Behavioral Change Communications</a></li>
-                    </ul>
+                    @if($navServices->isNotEmpty())
+                        <ul class="dropdown-menu">
+                            @foreach($navServices as $service)
+                                <li><a class="dropdown-item" href="{{ route('services.show', $service->slug) }}">{{ $service->title }}</a></li>
+                            @endforeach
+                        </ul>
+                    @endif
                 </li>
                 <li class="nav-item mx-2">
                     <a href="{{ route('projects.index') }}" class="nav-link ps-2 d-flex cursor-pointer {{ request()->routeIs('projects.*') ? 'active' : '' }}">Projects</a>

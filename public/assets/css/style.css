@@ -2147,25 +2147,79 @@ nav.navbar {
 @media (min-width: 992px) {
     #services-dropdown { position: relative; }
 
+    /* Flat panel: cancel the theme's perspective/rotateX dropdown animation */
     #services-dropdown > .dropdown-menu {
         display: none;
         position: absolute;
         top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        min-width: 680px;
-        max-width: 92vw;
-        margin-top: 0;
+        left: 0;
+        right: auto;
+        transform: none !important;
+        transform-origin: top left;
+        transition: none;
+        perspective: none;
+        will-change: auto;
+        width: max-content;
+        min-width: 280px;
+        max-width: calc(100vw - 32px);
+        margin-top: 0 !important;
+        padding: 8px 0;
+        border: 0;
         border-top: 3px solid #38558A;
+        border-radius: 0 0 6px 6px;
+        background: #fff;
         box-shadow: 0 8px 24px rgba(0,0,0,0.12);
         z-index: 9999;
+    }
+
+    #services-dropdown > .nav-link {
+        margin-bottom: 0;
+    }
+
+    /* Invisible hover bridge so the menu stays open crossing from the link */
+    #services-dropdown > .dropdown-menu::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: -14px;
+        height: 14px;
     }
 
     #services-dropdown:hover > .dropdown-menu,
     #services-dropdown:focus-within > .dropdown-menu {
         display: block !important;
-        opacity: 1;
-        visibility: visible;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+
+    #services-dropdown .dropdown-menu > li {
+        margin: 0;
+        padding: 0;
+    }
+
+    #services-dropdown .dropdown-item {
+        display: block;
+        margin: 0;
+        padding: 10px 20px;
+        color: #344767 !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        cursor: pointer;
+        background: transparent;
+        font-size: 0.95rem;
+        white-space: nowrap;
+        border-radius: 0;
+        transform: none;
+        transition: none;
+        animation: none;
+    }
+
+    #services-dropdown .dropdown-item:hover,
+    #services-dropdown .dropdown-item:focus {
+        background: #f4f6fb;
+        color: #38558A !important;
     }
 }
 

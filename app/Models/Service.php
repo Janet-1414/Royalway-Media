@@ -10,11 +10,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class Service extends Model
 {
     use HasFactory;
+
+    /**
+     * Cache key for the navbar services dropdown
+     */
+    public const NAV_CACHE_KEY = 'nav_services';
 
     protected $fillable = [
         'title',
@@ -66,6 +72,10 @@ class Service extends Model
                 $service->slug = Str::slug($service->title);
             }
         });
+
+        // Refresh the navbar services dropdown after admin edits
+        static::saved(fn () => Cache::forget(self::NAV_CACHE_KEY));
+        static::deleted(fn () => Cache::forget(self::NAV_CACHE_KEY));
     }
 
     /**
