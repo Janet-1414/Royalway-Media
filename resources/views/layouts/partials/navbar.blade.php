@@ -48,3 +48,19 @@
         </div>
     </div>
 </nav>
+<script>
+    (function () {
+        var toggle = document.querySelector('#services-dropdown > .dropdown-toggle');
+        var menu = document.querySelector('#services-dropdown > .dropdown-menu');
+        if (!toggle || !menu) return;
+        var mobile = window.matchMedia('(max-width: 991.98px)');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.addEventListener('click', function (e) {
+            if (!mobile.matches) return;
+            e.preventDefault();
+            e.stopPropagation();
+            var open = menu.classList.toggle('show');
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+    })();
+</script>
