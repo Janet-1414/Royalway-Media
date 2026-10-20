@@ -171,62 +171,37 @@
 
     <!-- Services Section -->
     <section class="services-section py-5">
-        <div class="container">
-            <div class="row mb-4">
-                <div class="col-12">
-                    <span class="badge bg-light text-burgundy mb-3">OUR SERVICES</span>
-                    <h2 class="section-heading">What We Do</h2>
-                    <p class="section-intro" style="white-space: normal; word-break: normal;">We help businesses solve their toughest communication and operational challenges — driving real, measurable returns.</p>
+        <div class="container-fluid">
+            <div class="container">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <span class="badge bg-light text-burgundy mb-3">OUR SERVICES</span>
+                        <h2 class="section-heading">What We Do</h2>
+                        <p class="section-intro" style="white-space: normal; word-break: normal;">We help businesses solve their toughest communication and operational challenges — driving real, measurable returns.</p>
+                    </div>
                 </div>
             </div>
-            <div class="row g-3">
-                @php
-                    $homeServices = [
-                        [
-                            'slug' => 'marketing-communications',
-                            'title' => 'Marketing Communications',
-                            'description' => 'We craft compelling marketing campaigns that connect your brand with the right audiences through strategic messaging and creative execution.',
-                        ],
-                        [
-                            'slug' => 'experiential-marketing',
-                            'title' => 'Experiential Marketing',
-                            'description' => 'We design immersive brand experiences and activations that create lasting emotional connections between your brand and your audience.',
-                        ],
-                        [
-                            'slug' => 'strategic-communications-visibility',
-                            'title' => 'Strategic Communications & Visibility',
-                            'description' => 'We build and protect your reputation through strategic communications planning that drives visibility and stakeholder engagement.',
-                        ],
-                        [
-                            'slug' => 'pr-media-management',
-                            'title' => 'PR & Media Management',
-                            'description' => 'We manage your media relationships and press coverage to ensure your story is told accurately and reaches the right audiences.',
-                        ],
-                    ];
-                @endphp
-                @foreach($homeServices as $svc)
-                    <div class="col-lg-3 col-md-6 col-6">
+            <div class="projects-scroll-wrapper">
+                <div class="projects-scroll-container">
+                    @foreach($homeServices as $service)
                         <div class="project-card">
                             <div class="project-image">
-                                @php
-                                    $imgPath = public_path('storage/services/' . $svc['slug'] . '.jpg');
-                                @endphp
-                                @if(file_exists($imgPath))
-                                    <img src="{{ asset('storage/services/' . $svc['slug'] . '.jpg') }}" alt="{{ $svc['title'] }}" loading="lazy" width="400" height="300">
-                                @else
-                                    <img src="{{ asset('assets/img/about-1.png') }}" alt="{{ $svc['title'] }}" loading="lazy" width="400" height="300">
-                                @endif
+                                <img src="{{ $service->image ? asset('storage/' . $service->image) : asset('assets/img/about-1.png') }}" alt="{{ $service->title }}" class="img-fluid" loading="lazy" onerror="this.onerror=null;this.src='{{ asset('assets/img/about-1.png') }}';">
                             </div>
                             <div class="project-content">
-                                <p class="fw-700 text-dark-emphasis mb-2 card-title">{{ $svc['title'] }}</p>
-                                <a href="/services/{{ $svc['slug'] }}" class="cta-link">Learn More <i class="fas fa-arrow-right ms-2"></i></a>
+                                <p class="fw-700 text-dark-emphasis mb-2 card-title">{{ $service->title }}</p>
+                                <a href="{{ route('services.show', $service->slug) }}" class="cta-link">Learn More <i class="fas fa-arrow-right ms-2"></i></a>
                             </div>
                         </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
             </div>
-            <div class="text-center mt-4">
-                <a href="{{ route('services.index') }}" class="btn btn-burgundy">View More Services</a>
+            <div class="container mt-4">
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <a href="{{ route('services.index') }}" class="btn btn-burgundy">View More Services</a>
+                    </div>
+                </div>
             </div>
         </div>
     </section>

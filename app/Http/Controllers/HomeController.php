@@ -35,6 +35,12 @@ class HomeController extends Controller
             ->ordered()
             ->get();
 
+        // Homepage service cards - same query as ServiceController@index, first 4
+        $homeServices = Service::active()
+            ->ordered()
+            ->limit(4)
+            ->get();
+
         // Get active partners ordered
         $partners = Partner::active()
             ->ordered()
@@ -65,6 +71,7 @@ class HomeController extends Controller
         return view('welcome', compact(
             'featuredProjects',
             'services',
+            'homeServices',
             'partners',
             'stats',
             'heroVideo',

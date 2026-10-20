@@ -21,21 +21,17 @@
     <section class="services-tiles-section py-5">
         <div class="container">
             @if($services->count() > 0)
-                <div class="row g-3">
+                <div class="row g-4">
                     @foreach($services as $service)
-                        <div class="col-lg-3 col-md-6 col-6">
-                            <a href="{{ route('services.show', $service->slug) }}" class="project-card text-decoration-none d-block" aria-label="{{ $service->title }}">
-                                <div class="project-image position-relative overflow-hidden">
-                                    @if($service->image)
-                                        <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->title }}" loading="lazy" style="width:100%; height:220px; object-fit:cover;">
-                                    @else
-                                        <div style="width:100%; height:220px; background:#1a1a2e; display:flex; align-items:center; justify-content:center;">
-                                            <i class="fas fa-concierge-bell fa-2x text-white opacity-25"></i>
-                                        </div>
-                                    @endif
-                                    <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 60%); pointer-events:none;"></div>
-                                    <div style="position:absolute; bottom:0; left:0; right:0; padding:1rem;">
-                                        <p class="text-white fw-semibold mb-0 small">{{ $service->title }}</p>
+                        <div class="col-lg-4 col-md-6 col-12">
+                            <a href="{{ route('services.show', $service->slug) }}" class="text-decoration-none">
+                                <div class="project-card">
+                                    <div class="project-image">
+                                        <img src="{{ $service->image ? asset('storage/' . $service->image) : asset('assets/img/about-1.png') }}" alt="{{ $service->title }}" class="img-fluid" onerror="this.onerror=null;this.src='{{ asset('assets/img/about-1.png') }}';">
+                                    </div>
+                                    <div class="project-content">
+                                        <p class="fw-700 text-dark-emphasis mb-2 card-title">{{ $service->title }}</p>
+                                        <span class="cta-link">Learn More <i class="fas fa-arrow-right ms-2"></i></span>
                                     </div>
                                 </div>
                             </a>
