@@ -38,6 +38,7 @@ class Service extends Model
         'image',
         'poster_image',
         'gallery',
+        'video_url',
         'order',
         'is_active',
         'is_featured',
@@ -146,5 +147,119 @@ class Service extends Model
             return null;
         }
         return asset('storage/' . $this->poster_image);
+    }
+
+    /**
+     * YouTube / Vimeo embed URL built from video_url, or null if unrecognised
+     */
+    public function getVideoEmbedUrlAttribute(): ?string
+    {
+        $url = trim((string) $this->video_url);
+        if ($url === '') {
+            return null;
+        }
+
+        if (preg_match('~(?:youtube(?:-nocookie)?\.com/(?:watch\?(?:.*&)?v=|embed/|shorts/|live/)|youtu\.be/)([A-Za-z0-9_-]{11})~', $url, $m)) {
+            return 'https://www.youtube-nocookie.com/embed/' . $m[1] . '?rel=0';
+        }
+
+        if (preg_match('~vimeo\.com/(?:video/|channels/[^/]+/|groups/[^/]+/videos/)?(\d+)~', $url, $m)) {
+            return 'https://player.vimeo.com/video/' . $m[1];
+        }
+
+        return null;
+    }
+
+    /**
+     * Hero slideshow images: gallery first, falling back to poster then card image
+     */
+    public function getHeroImagesAttribute(): array
+    {
+        $paths = array_filter((array) ($this->gallery ?? []));
+        if (empty($paths)) {
+            $paths = array_filter([$this->poster_image, $this->image]);
+        }
+
+        $urls = [];
+        foreach ($paths as $path) {
+            if (is_string($path) && file_exists(storage_path('app/public/' . $path))) {
+                $urls[] = asset('storage/' . $path);
+            }
+        }
+
+        return array_values(array_unique($urls));
+    }
+
+    /**
+     * "What We Offer" cards from the features repeater
+     */
+    public function getOfferItemsAttribute(): array
+    {
+        $items = [];
+
+        foreach ((array) ($this->features ?? []) as $feature) {
+            $title = trim(is_array($feature) ? ($feature['title'] ?? '') : (string) $feature);
+            if ($title !== '') {
+                $items[] = [
+                    'title' => $title,
+                    'description' => is_array($feature) ? trim($feature['description'] ?? '') : '',
+                ];
+            }
+        }
+
+        return $items;
+    }
+
+    /**
+     * Non-empty Checklist Items tags
+     */
+    public function getChecklistItemsAttribute(): array
+    {
+        return array_values(array_filter(
+            array_map(fn ($item) => trim((string) $item), (array) ($this->checklist ?? [])),
+            fn ($item) => $item !== ''
+        ));
+    }
+
+    /**
+     * Split extended content into a CTA heading (its first line) and the remaining body html.
+     * Returns null when there is no visible content.
+     */
+    public static function splitCta(?string $html): ?array
+    {
+        $html = trim((string) $html);
+        if (trim(strip_tags($html)) === '') {
+            return null;
+        }
+
+        $toText = fn ($fragment) => trim(preg_replace('/\s+/', ' ', html_entity_decode(strip_tags($fragment), ENT_QUOTES | ENT_HTML5)));
+
+        // Plain text: first line is the heading
+        if (strip_tags($html) === $html) {
+            $lines = preg_split('/\R/', $html, 2);
+            $rest = trim($lines[1] ?? '');
+
+            return ['heading' => trim($lines[0]), 'body' => $rest !== '' ? nl2br(e($rest)) : null];
+        }
+
+        // Rich text: first block element is the heading, or its text up to the first <br>
+        if (preg_match('~^<(h[1-6]|p|div)\b[^>]*>(.*?)</\1>(.*)$~is', $html, $m)) {
+            $parts = preg_split('~<br\s*/?>~i', $m[2], 2);
+            $rest = trim($m[3]);
+            if (isset($parts[1]) && $toText($parts[1]) !== '') {
+                $rest = '<p>' . trim($parts[1]) . '</p>' . $rest;
+            }
+            $heading = $toText($parts[0]);
+        } else {
+            $parts = preg_split('~<br\s*/?>|</(?:p|div|h[1-6])>~i', $html, 2);
+            $heading = $toText($parts[0]);
+            $rest = trim($parts[1] ?? '');
+        }
+
+        if ($heading === '') {
+            return self::splitCta($rest);
+        }
+
+        return ['heading' => $heading, 'body' => trim(strip_tags($rest)) !== '' ? $rest : null];
     }
 }

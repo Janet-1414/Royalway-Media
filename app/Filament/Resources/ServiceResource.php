@@ -57,10 +57,6 @@ class ServiceResource extends Resource
                             ])
                             ->required(),
 
-                        Forms\Components\TextInput::make('headline')
-                            ->maxLength(255)
-                            ->helperText('Short impactful headline for the service page'),
-
                         Forms\Components\Textarea::make('short_description')
                             ->required()
                             ->rows(3)
@@ -141,7 +137,14 @@ class ServiceResource extends Resource
                             ->disk('public')
                             ->directory('services/gallery')
                             ->reorderable()
-                            ->helperText('Materials/work samples gallery'),
+                            ->helperText('Rotates as a slideshow in the service page hero'),
+
+                        Forms\Components\TextInput::make('video_url')
+                            ->label('Service Video URL')
+                            ->url()
+                            ->maxLength(255)
+                            ->helperText('YouTube or Vimeo link')
+                            ->columnSpanFull(),
                     ])
                     ->columns(2),
 

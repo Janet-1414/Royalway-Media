@@ -1236,20 +1236,6 @@ nav.navbar {
     box-shadow: 0 6px 24px rgba(28, 36, 51, 0.13);
 }
 
-.service-checklist {
-    list-style: none;
-    padding: 0;
-    margin: 20px 0 28px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px 24px;
-}
-
-.service-checklist li {
-    font-weight: 500;
-    color: #1c2433;
-}
-
 .service-content-body {
     font-size: 1.1rem;
     line-height: 1.8;
@@ -1274,34 +1260,6 @@ nav.navbar {
     padding-left: 2rem;
 }
 
-/* Service gallery grid */
-.service-gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-}
-
-.service-gallery-item {
-    aspect-ratio: 1;
-    border-radius: 18px;
-    overflow: hidden;
-}
-
-.service-gallery-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-@media (max-width: 767px) {
-    .service-checklist {
-        grid-template-columns: 1fr;
-    }
-    .service-gallery-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
 /* Other services scroll */
 .other-services-scroll {
     position: relative;
@@ -1320,10 +1278,9 @@ nav.navbar {
     display: none;
 }
 
-.other-services-track .service-tile {
-    min-width: 280px;
-    max-width: 280px;
-    flex-shrink: 0;
+.other-services-track > a {
+    flex: 0 0 300px;
+    display: flex;
 }
 
 .scroll-nav-btn {
@@ -2274,5 +2231,350 @@ nav.navbar {
     #services-dropdown .dropdown-item {
         padding: 10px 8px;
         white-space: normal;
+    }
+}
+
+/* ========================================
+   SERVICE DETAIL PAGE
+   ======================================== */
+
+/* Hero: text panel left, media right behind a diagonal divider */
+.service-hero {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    padding: 2.5rem 0;
+}
+
+.service-hero-title {
+    color: #fff;
+    font-weight: 800;
+    font-size: clamp(2rem, 3.6vw, 3rem);
+    line-height: 1.15;
+    margin-bottom: 0.75rem;
+}
+
+.service-hero-tagline {
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.service-hero-summary {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+    line-height: 1.7;
+    max-width: 34rem;
+    margin-bottom: 1rem;
+}
+
+.service-hero-media {
+    position: relative;
+    margin-top: 1.75rem;
+    aspect-ratio: 16 / 10;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.service-hero-slides,
+.service-hero-placeholder {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.service-hero-placeholder {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.service-hero-slides img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.9s ease;
+}
+
+.service-hero-slides img.is-active {
+    opacity: 1;
+}
+
+.service-hero.has-video .service-hero-media {
+    aspect-ratio: auto;
+}
+
+.service-hero-video {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+}
+
+.service-hero-video iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 0.75rem;
+}
+
+@media (min-width: 992px) {
+    .service-hero {
+        display: flex;
+        align-items: center;
+        min-height: 460px;
+        padding: 0;
+    }
+
+    .service-hero-text {
+        position: relative;
+        z-index: 2;
+        padding-top: 3.5rem;
+        padding-bottom: 3.5rem;
+        padding-right: 2rem;
+    }
+
+    /* Media fills the right half of the band; its left edge sweeps diagonally */
+    .service-hero-media,
+    .service-hero::before {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 50%;
+        margin: 0;
+        aspect-ratio: auto;
+        border-radius: 0;
+        clip-path: polygon(16% 0, 100% 0, 100% 100%, 0 100%);
+    }
+
+    /* Thin accent stripe tracing the divider */
+    .service-hero::before {
+        content: "";
+        background: #ffc107;
+        transform: translateX(-6px);
+    }
+
+    .service-hero.has-video .service-hero-media {
+        display: flex;
+        align-items: center;
+        padding: 2.5rem 2.5rem 2.5rem 18%;
+        background: #0f1a33;
+    }
+}
+
+/* Sections */
+.service-section {
+    padding: 2.75rem 0;
+}
+
+/* Two white sections in a row share one gap */
+.service-section:not(.bg-light) + .service-section:not(.bg-light) {
+    padding-top: 0;
+}
+
+.service-section-title {
+    font-weight: 700;
+    color: #344767;
+    font-size: clamp(1.5rem, 2.4vw, 1.9rem);
+}
+
+.service-lead {
+    font-size: 1.15rem;
+    color: #344767;
+    line-height: 1.75;
+    margin-bottom: 0;
+}
+
+/* Checklist tick-list under the introduction */
+.service-checklist {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem 1.5rem;
+}
+
+.service-lead + .service-checklist {
+    margin-top: 1.75rem;
+}
+
+.service-checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #344767;
+    line-height: 1.5;
+}
+
+.service-checklist li i {
+    flex: 0 0 auto;
+    margin-top: 0.3rem;
+    font-size: 0.8rem;
+    color: #018DB1;
+}
+
+@media (max-width: 991px) {
+    .service-checklist {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 575px) {
+    .service-checklist {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Full description rich text */
+.service-body {
+    color: #495057;
+    font-size: 1rem;
+    line-height: 1.75;
+}
+
+.service-body h2,
+.service-body h3,
+.service-body h4 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #344767;
+    margin: 1.75rem 0 0.75rem;
+}
+
+.service-body > :first-child {
+    margin-top: 0;
+}
+
+.service-body p {
+    margin-bottom: 1rem;
+}
+
+.service-body ul,
+.service-body ol {
+    padding-left: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.service-body li {
+    margin-bottom: 0.5rem;
+    padding-left: 0.25rem;
+}
+
+.service-body li::marker {
+    color: #018DB1;
+}
+
+.service-body strong {
+    color: #344767;
+}
+
+.service-body a {
+    color: #38558A;
+}
+
+.service-body > :last-child {
+    margin-bottom: 0;
+}
+
+/* What We Offer cards */
+.offer-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    height: 100%;
+    background: #fff;
+    border-radius: 1rem;
+    padding: 1.25rem;
+    box-shadow: 0 2px 10px rgba(52, 71, 103, 0.08);
+}
+
+.offer-card-icon {
+    flex: 0 0 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #ffc107;
+    color: #1a1a2e;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+}
+
+.offer-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #344767;
+    line-height: 1.35;
+    margin: 0;
+    padding-top: 0.4rem;
+}
+
+.offer-card-text {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #67748e;
+    line-height: 1.6;
+    margin: 0.35rem 0 0;
+}
+
+/* Mid-page CTA */
+.service-cta-panel {
+    max-width: 860px;
+    margin: 0 auto;
+    text-align: center;
+    background: #EAF1FF;
+    border-radius: 1.25rem;
+    padding: 2.5rem 2rem;
+}
+
+.service-cta-heading {
+    font-weight: 700;
+    color: #344767;
+    font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+    margin-bottom: 0.75rem;
+}
+
+.service-cta-text {
+    color: #67748e;
+    font-size: 1rem;
+    line-height: 1.7;
+    max-width: 600px;
+    margin: 0 auto 1.5rem;
+}
+
+.service-cta-text p {
+    margin-bottom: 0.5rem;
+}
+
+.service-cta-text > :last-child {
+    margin-bottom: 0;
+}
+
+.service-cta-text a {
+    color: #38558A;
+}
+
+@media (max-width: 767px) {
+    .service-section {
+        padding: 2rem 0;
+    }
+
+    .service-section:not(.bg-light) + .service-section:not(.bg-light) {
+        padding-top: 0;
+    }
+
+    .service-cta-panel {
+        padding: 2rem 1.25rem;
+    }
+
+    .other-services-track > a {
+        flex-basis: 280px;
     }
 }
