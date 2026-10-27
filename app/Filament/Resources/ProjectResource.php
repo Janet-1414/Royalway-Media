@@ -59,7 +59,7 @@ class ProjectResource extends Resource
                                                     $partner = \App\Models\Partner::find($state);
                                                     if ($partner) {
                                                         $set('client', $partner->name);
-                                                        $set('client_logo', $partner->logo);
+                                                        $set('client_logo', $partner->logo ? [$partner->logo] : null);
                                                     }
                                                 }
                                             })

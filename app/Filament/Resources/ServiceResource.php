@@ -130,6 +130,18 @@ class ServiceResource extends Resource
                             ->imageEditor()
                             ->helperText('Large image for service detail page'),
 
+                        Forms\Components\FileUpload::make('offer_background_image')
+                            ->label('What We Offer Background')
+                            ->image()
+                            ->disk('public')
+                            ->directory('services/offer-backgrounds')
+                            ->imageEditor()
+                            ->imageResizeMode('cover')
+                            ->imageCropAspectRatio('16:6')
+                            ->imageResizeTargetWidth('1920')
+                            ->imageResizeTargetHeight('720')
+                            ->helperText('Wide photo relevant to this service. Cropped to 16:6 and shown behind the What We Offer cards, with a dark overlay added automatically.'),
+
                         Forms\Components\FileUpload::make('gallery')
                             ->label('Gallery Images')
                             ->multiple()

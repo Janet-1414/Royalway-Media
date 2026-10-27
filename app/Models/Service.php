@@ -38,6 +38,7 @@ class Service extends Model
         'image',
         'poster_image',
         'gallery',
+        'offer_background_image',
         'video_url',
         'order',
         'is_active',
@@ -147,6 +148,20 @@ class Service extends Model
             return null;
         }
         return asset('storage/' . $this->poster_image);
+    }
+
+    /**
+     * Background for the What We Offer section: the image uploaded in Filament only, null if none
+     */
+    public function getOfferBackgroundUrlAttribute(): ?string
+    {
+        $path = $this->offer_background_image;
+
+        if (is_string($path) && $path !== '' && file_exists(storage_path('app/public/' . $path))) {
+            return asset('storage/' . $path);
+        }
+
+        return null;
     }
 
     /**

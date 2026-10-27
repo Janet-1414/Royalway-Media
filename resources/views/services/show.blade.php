@@ -30,7 +30,7 @@
 @section('content')
 
     <!-- A. HERO -->
-    <section class="service-hero{{ $videoEmbed ? ' has-video' : '' }}">
+    <section class="service-hero">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-6 service-hero-text">
@@ -48,15 +48,7 @@
                 </div>
                 <div class="col-lg-6">
                     <div class="service-hero-media">
-                        @if($videoEmbed)
-                            <div class="service-hero-video">
-                                <iframe src="{{ $videoEmbed }}"
-                                        title="{{ $service->title }} video"
-                                        loading="lazy"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                                        allowfullscreen></iframe>
-                            </div>
-                        @elseif(count($heroImages) > 0)
+                        @if(count($heroImages) > 0)
                             <div class="service-hero-slides" @if(count($heroImages) > 1) data-slideshow @endif>
                                 @foreach($heroImages as $i => $imageUrl)
                                     <img src="{{ $imageUrl }}"
@@ -98,9 +90,11 @@
 
     <!-- C. WHAT WE OFFER -->
     @if($offerCount > 0)
-        <section class="service-section bg-light">
+        @php $offerBg = $service->offer_background_url; @endphp
+        <section class="service-section offer-section bg-light{{ $offerBg ? ' has-bg' : '' }}"
+                 @if($offerBg) style="background-image: linear-gradient(rgba(15,20,35,.75), rgba(15,20,35,.75)), url('{{ $offerBg }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
             <div class="container">
-                <h2 class="service-section-title text-center mb-4">What We Offer</h2>
+                <h2 class="service-section-title text-center mb-4{{ $offerBg ? ' text-white' : '' }}">What We Offer</h2>
                 <div class="row g-3 g-lg-4 justify-content-center">
                     @foreach($offerItems as $i => $item)
                         <div class="col-md-6 {{ $i >= $offerWideFrom ? 'col-lg-6' : 'col-lg-4' }}">
@@ -127,6 +121,25 @@
                 <div class="row justify-content-center">
                     <div class="col-lg-9">
                         <div class="service-body">{!! $fullDescription !!}</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    @endif
+
+    <!-- D2. VIDEO -->
+    @if($videoEmbed)
+        <section class="service-section bg-light">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-9">
+                        <div class="ratio ratio-16x9 rounded-3 shadow overflow-hidden">
+                            <iframe src="{{ $videoEmbed }}"
+                                    title="{{ $service->title }} video"
+                                    loading="lazy"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                                    allowfullscreen></iframe>
+                        </div>
                     </div>
                 </div>
             </div>

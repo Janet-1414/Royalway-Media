@@ -327,11 +327,11 @@ class SpamGuard
      */
     protected function logSpam(string $reason): void
     {
-        Log::info('SpamGuard blocked submission', [
-            'form' => $this->formType,
-            'reason' => $reason,
-            'ip' => $this->request->ip(),
-        ]);
+//        Log::info('SpamGuard blocked submission', [
+//            'form' => $this->formType,
+//            'reason' => $reason,
+//            'ip' => $this->request->ip(),
+//        ]);
     }
 
     /**

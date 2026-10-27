@@ -2578,3 +2578,5 @@ nav.navbar {
         flex-basis: 280px;
     }
 }
+/* What We Offer: per-service background (image and overlay are set inline in the view) */
+.offer-section.has-bg .offer-card{box-shadow:0 8px 24px rgba(0,0,0,.25)}
