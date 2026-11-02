@@ -8,6 +8,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AboutPage;
 use App\Models\TeamMember;
 use App\Models\Service;
 use App\Models\Partner;
@@ -33,6 +34,8 @@ class PageController extends Controller
             ->ordered()
             ->get();
 
-        return view('about', compact('teamMembers', 'services', 'partners'));
+        $about = AboutPage::current();
+
+        return view('about', compact('about', 'teamMembers', 'services', 'partners'));
     }
 }

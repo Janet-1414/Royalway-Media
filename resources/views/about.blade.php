@@ -4,235 +4,168 @@
 
 @section('content')
     @php
-        $companyProfilePdf = setting_file_url('company_profile_pdf');
-        $companyProfileUrl = setting('company_profile_url');
-        $companyProfileLink = $companyProfilePdf ?: $companyProfileUrl;
+        $fileUrl = fn ($path) => \App\Models\AboutPage::fileUrl($path);
+
+        $heroImg = $fileUrl($about->hero_image);
+        $introImages = collect($about->intro_images ?? [])->map($fileUrl)->filter()->values()->all();
+        $hasImgs = count($introImages) > 0;
+        $mvpImg = $fileUrl($about->mission_image) ?: asset('assets/img/mission-vision.png');
+
+        $stats = collect($about->stats ?? [])
+            ->filter(fn ($s) => filled($s['value'] ?? null) && filled($s['label'] ?? null))
+            ->values();
+
+        $strengths = collect($about->strengths ?? [])
+            ->filter(fn ($s) => filled($s['title'] ?? null))
+            ->values();
+
+        // Desktop column classes that keep the last row of the 3-column grid full
+        $sCount = $strengths->count();
+        $sRemainder = $sCount % 3;
+        $sWideFrom = match (true) {
+            $sCount === 1 => 0,
+            $sRemainder === 2 => $sCount - 2,
+            $sRemainder === 1 => $sCount - 4,
+            default => $sCount,
+        };
+
+        $hasIntroBody = trim(strip_tags((string) $about->intro_body)) !== '';
+        $hasMvp = filled($about->mission) || filled($about->vision) || filled($about->purpose);
     @endphp
 
-    <!-- Page Header -->
-    <section class="page-header-section">
+        <!-- Banner -->
+    <section class="ab-hero"@if($heroImg) style="background-image: linear-gradient(rgba(15, 26, 51, .78), rgba(27, 58, 109, .7)), url('{{ $heroImg }}');"@endif>
         <div class="container">
-            <div class="row">
-                <div class="col-12 text-center">
-                    <h1 class="text-white">About Us</h1>
-                    @if($companyProfileLink)
-                        <a href="{{ $companyProfileLink }}" class="btn btn-outline-light mt-3" target="_blank" rel="noopener">
-                            <i class="fas fa-file-pdf me-2"></i>Download Company Profile
-                        </a>
+            <div class="row align-items-center g-4">
+                <div class="col-lg-6">
+                    <h1 class="ab-hero-title">{{ $about->hero_title }}</h1>
+                </div>
+                @if(filled($about->hero_subtitle))
+                    <div class="col-lg-6">
+                        <p class="ab-hero-sub">{{ $about->hero_subtitle }}</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </section>
+
+    <!-- Who we are -->
+    <section class="about-intro-section py-5">
+        <div class="container py-lg-3">
+            <div class="row g-5 align-items-center {{ $hasImgs ? '' : 'justify-content-center' }}">
+                <div class="{{ $hasImgs ? 'col-lg-6' : 'col-lg-10' }}">
+                    @if(filled($about->intro_badge))
+                        <span class="badge bg-light text-burgundy mb-3">{{ $about->intro_badge }}</span>
+                    @endif
+                    @if(filled($about->intro_heading))
+                        <h2 class="section-heading mb-3">{{ $about->intro_heading }}</h2>
+                    @endif
+                    @if($hasIntroBody)
+                        <div class="ab-prose">{!! $about->intro_body !!}</div>
                     @endif
                 </div>
+
+                @if($hasImgs)
+                    <div class="col-lg-6">
+                        <div class="ab-collage ab-collage-{{ count($introImages) }}">
+                            @foreach($introImages as $url)
+                                <img src="{{ $url }}" alt="RoyalWay Media" loading="lazy">
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </div>
+
+            @if($stats->count())
+                <div class="row g-3 justify-content-center mt-4 mt-lg-5">
+                    @foreach($stats as $stat)
+                        <div class="col-6 col-md-{{ intdiv(12, $stats->count()) }}">
+                            <div class="ab-stat">
+                                <div class="ab-stat-value">{{ $stat['value'] }}</div>
+                                <p class="ab-stat-label">{{ $stat['label'] }}</p>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
         </div>
     </section>
 
-    <!-- About Intro Section -->
-    <section class="about-intro-section py-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-2 col-12 mb-3">
-                    <span class="badge bg-light text-burgundy">ABOUT US</span>
-                </div>
-                <div class="col-lg-10 col-12">
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <p class="text-muted">
-                                RoyalWay Media Ltd is a premier integrated communications firm based in Kampala, Uganda,
-                                dedicated to elevating brands and transforming ambitions into lasting communications impact.
-                                With more than 15 years of proven expertise, we deliver 360-degree solutions that seamlessly
-                                blend strategic public relations, powerful branding, innovative marketing, behavioral change
-                                communications, digital engagement, advertising, experiential events, and more. Our in-house
-                                team of creative strategists, storytellers, and industry specialists approaches every project with
-                                creativity, reliability, and unmatched speed of delivery—building meaningful connections
-                                between organizations and their audiences.
-                            </p>
-                            <p class="text-muted">
-                                We partner closely with corporate entities, development organizations, and ambitious brands
-                                across East Africa and beyond, helping them navigate complex communication landscapes,
-                                amplify their voice, and achieve measurable results. Whether crafting compelling narratives,
-                                managing high-profile events, driving behavioral transformation, or executing integrated
-                                campaigns, we bring passion, precision, and a deep understanding of local and regional
-                                dynamics to every engagement.
-                            </p>
-                            <p class="text-muted">
-                                At RoyalWay Media Ltd, communication is more than a service—it&#39;s <strong>the bridge to influence,
-                                    trust, and growth. We don&#39;t just tell your story; we make it resonate.</strong>
-                            </p>
+    <!-- Mission, vision, purpose -->
+    @if($hasMvp)
+        <section class="mission-vision-section py-5">
+            <div class="container py-lg-3">
+                <div class="row g-5 align-items-center">
+                    <div class="col-lg-5">
+                        <img src="{{ $mvpImg }}" alt="RoyalWay Media" class="ab-mvp-img" loading="lazy">
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="d-flex flex-column gap-3">
+                            @foreach([
+                                ['fa-bullseye', 'Mission', $about->mission],
+                                ['fa-eye', 'Vision', $about->vision],
+                                ['fa-compass', 'Our Purpose', $about->purpose],
+                            ] as [$icon, $label, $text])
+                                @if(filled($text))
+                                    <div class="ab-mvp-item">
+                                        <span class="ab-mvp-icon"><i class="fa-solid {{ $icon }}"></i></span>
+                                        <div>
+                                            <h3>{{ $label }}</h3>
+                                            <p>{!! nl2br(e($text)) !!}</p>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endforeach
                         </div>
-{{--                        <div class="col-md-6 mb-3">--}}
-{{--                            <p class="text-muted">--}}
-{{--                                Delivering communications campaigns &amp; conversations to clients across all sectors--}}
-{{--                            </p>--}}
-{{--                            <ul class="list-unstyled">--}}
-{{--                                <li class="mb-2"><i class="fas fa-check text-burgundy me-2"></i>Telecoms</li>--}}
-{{--                                <li class="mb-2"><i class="fas fa-check text-burgundy me-2"></i>Banking</li>--}}
-{{--                                <li class="mb-2"><i class="fas fa-check text-burgundy me-2"></i>Beverages</li>--}}
-{{--                                <li class="mb-2"><i class="fas fa-check text-burgundy me-2"></i>Health Promotions</li>--}}
-{{--                                <li class="mb-2"><i class="fas fa-check text-burgundy me-2"></i>Development Partners- UN Agencies, EU, aBi Development and others</li>--}}
-{{--                            </ul>--}}
-{{--                        </div>--}}
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    @endif
 
-    <!-- Mission Vision Section -->
-    <section class="mission-vision-section py-5">
-        <div class="container-fluid">
-            <div class="row g-0">
-                <div class="col-lg-6 col-12">
-                    <img src="{{ asset('assets/img/mission-vision.png') }}" alt="Team Meeting" class="img-fluid w-100 mission-image">
-                </div>
-                <div class="col-lg-6 col-12 mission-content">
-                    <div class="p-5">
-                        <div class="mb-5">
-                            <h3 class="text-white mb-3">Mission</h3>
-                            <p class="text-white">
-                                Our mission is to transform communication offerings into an integrated delivery model that
-                                provides our clients with one single point of contact for their entire communication programs and
-                                all strategic perspectives of their brands.
-                            </p>
-                        </div>
-                        <div class="mb-5">
-                            <h3 class="text-white mb-3">Vision</h3>
-                            <p class="text-white">
-                                To become a world-class communications service provider through the provision of innovative
-                                and superior service and total client attachment.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 class="text-white mb-3">Our Purpose</h3>
-                            <p class="text-white">
-                                Our Purpose is to power and deliver superior value to our clients through integrated
-                                communication solutions.
-                            </p>
-                        </div>
+    <!-- Strengths -->
+    @if($sCount > 0)
+        <section class="purpose-section py-5">
+            <div class="container">
+                <div class="row mb-5">
+                    <div class="col-12">
+                        @if(filled($about->strengths_badge))
+                            <span class="badge bg-light text-burgundy mb-3">{{ $about->strengths_badge }}</span>
+                        @endif
+                        @if(filled($about->strengths_intro))
+                            <p class="section-intro fw-semibold text-dark">{{ $about->strengths_intro }}</p>
+                        @endif
                     </div>
                 </div>
+                <div class="row g-4 justify-content-center">
+                    @foreach($strengths as $i => $item)
+                        <div class="col-md-6 {{ $i >= $sWideFrom ? 'col-lg-6' : 'col-lg-4' }}">
+                            <div class="purpose-card">
+                                <div class="purpose-icon mb-3">
+                                    <i class="fa-solid {{ $item['icon'] ?? 'fa-star' }} fa-2x text-burgundy"></i>
+                                </div>
+                                <h4 class="text-dark-emphasis mb-3">{{ $item['title'] }}</h4>
+                                @if(filled($item['body'] ?? null))
+                                    <p class="text-muted mb-0">{{ $item['body'] }}</p>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    @endif
 
-    <!-- Purpose Section -->
-    <section class="purpose-section py-5">
-        <div class="container">
-            <div class="row mb-5">
-                <div class="col-12">
-                    <span class="badge bg-light text-burgundy mb-3">Our Strengths</span>
-                    <p class="section-intro fw-semibold text-dark">Our Purpose is to power and deliver superior value to our clients through integrated communication solutions.</p>
-                </div>
+    <!-- Closing banner -->
+    @if(filled($about->cta_title))
+        <section class="cta-section text-white py-5">
+            <div class="container text-center position-relative py-lg-3">
+                <h2 class="cta-title text-white mb-3">{{ $about->cta_title }}</h2>
+                @if(filled($about->cta_text))
+                    <p class="cta-subtitle text-white mb-4">{{ $about->cta_text }}</p>
+                @endif
+                <a href="{{ route('contact.index') }}" class="btn btn-warning btn-lg fw-semibold px-5">Contact Us Today</a>
             </div>
-            <div class="row g-4">
-                <div class="col-lg-4 col-md-6">
-                    <div class="purpose-card">
-                        <div class="purpose-icon mb-3">
-                            <i class="fa-solid fa-circle-nodes fa-2x text-burgundy"></i>
-                        </div>
-                        <h4 class="text-dark-emphasis mb-3">Integrated 360-Degree communications &amp; marketing approach</h4>
-                        <p class="text-muted">
-                            RoyalWay excels at providing comprehensive, end-to-end communications
-                            solutions—seamlessly blending PR, branding, advertising, digital marketing, behavioral change
-                            communications, experiential events, media management, and more—under one roof for
-                            maximum impact and consistency.
-                        </p>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="purpose-card">
-                        <div class="purpose-icon mb-3">
-                            <i class="fa-solid fa-award fa-2x text-burgundy"></i>
-                        </div>
-                        <h4 class="text-dark-emphasis mb-3">Proven Expertise and Track Record</h4>
-                        <p class="text-muted">
-                            With over a decade of experience we have successfully partnered with major multinational
-                            corporations (e.g., MTN Uganda, Standard Chartered Bank, ABSA,Airtel Uganda, Total E&amp;P),
-                            development organizations (e.g., European Union, aBi Finance,UNDP, UNICEF, UN Women),
-                            and government bodies across East Africa, delivering measurable results in complex markets.
-                        </p>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="purpose-card">
-                        <div class="purpose-icon mb-3">
-                            <i class="fa-solid fa-bolt fa-2x text-burgundy"></i>
-                        </div>
-                        <h4 class="text-dark-emphasis mb-3">Creativity Combined with Reliability and Speed</h4>
-                        <p class="text-muted">Royalway Media is widely recognized for its creative storytelling, innovative strategies, and
-                            unmatched speed of delivery—qualities that set them apart in high-stakes campaigns,
-                            activations, and time-sensitive projects while maintaining consistent quality and professionalism.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="row g-4">
-                <div class="col-lg-6 col-md-6">
-                    <div class="purpose-card">
-                        <div class="purpose-icon mb-3">
-                            <i class="fa-solid fa-map-location-dot fa-2x text-burgundy"></i>
-                        </div>
-                        <h4 class="text-dark-emphasis mb-3">Deep Local and Regional Insight</h4>
-                        <p class="text-muted">
-                            Based in Kampala with strong East African roots, RoyalWay brings nuanced understanding of
-                            local dynamics, cultural contexts, and audience behaviors—essential for effective behavioral
-                            change, community engagements and nationwide activations covering 137 districts in Uganda
-                        </p>
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-6">
-                    <div class="purpose-card">
-                        <div class="purpose-icon mb-3">
-                            <i class="fa-solid fa-handshake fa-2x text-burgundy"></i>
-                        </div>
-                        <h4 class="text-dark-emphasis mb-3">Passion-Driven, Client-Centric Collaboration</h4>
-                        <p class="text-muted">
-                            They emphasize building meaningful partnerships, aligning communication strategies tightly to
-                            client goals, and infusing projects with passion, insight, knowledge, experience, curiosity, and
-                            vision—transforming ambitions into thriving outcomes and fostering long-term trust
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Team Section -->
-{{--    @if($teamMembers->count() > 0)--}}
-{{--        <section class="team-section py-5">--}}
-{{--            <div class="container-fluid">--}}
-{{--                <div class="container mb-5">--}}
-{{--                    <div class="row">--}}
-{{--                        <div class="col-12">--}}
-{{--                            <span class="badge bg-light text-burgundy mb-3">Our Team</span>--}}
-{{--                            <p class="section-intro fw-semibold text-white">Meet the engine of our organization — a diverse group of experts, innovators, and problem-solvers.</p>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-{{--                </div>--}}
-{{--                <div class="team-scroll-wrapper">--}}
-{{--                    <div class="team-scroll-container" id="teamScroll">--}}
-{{--                        @foreach($teamMembers as $member)--}}
-{{--                            <div class="team-card">--}}
-{{--                                <img src="{{ asset('storage/' . $member->photo) }}" alt="{{ $member->name }}" class="team-image">--}}
-{{--                                <div class="team-info">--}}
-{{--                                    <h5 class="text-white mb-1">{{ $member->name }}</h5>--}}
-{{--                                    <p class="text-white-50 mb-0">{{ $member->position }}</p>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                        @endforeach--}}
-
-{{--                        <!-- Duplicate for seamless scroll only if more than 3 members -->--}}
-{{--                        @if($teamMembers->count() > 3)--}}
-{{--                            @foreach($teamMembers as $member)--}}
-{{--                                <div class="team-card">--}}
-{{--                                    <img src="{{ asset('storage/' . $member->photo) }}" alt="{{ $member->name }}" class="team-image">--}}
-{{--                                    <div class="team-info">--}}
-{{--                                        <h5 class="text-white mb-1">{{ $member->name }}</h5>--}}
-{{--                                        <p class="text-white-50 mb-0">{{ $member->position }}</p>--}}
-{{--                                    </div>--}}
-{{--                                </div>--}}
-{{--                            @endforeach--}}
-{{--                        @endif--}}
-{{--                    </div>--}}
-{{--                </div>--}}
-{{--            </div>--}}
-{{--        </section>--}}
-{{--    @endif--}}
+        </section>
+    @endif
 @endsection
