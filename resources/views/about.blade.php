@@ -125,30 +125,29 @@
 
     <!-- Strengths -->
     @if($sCount > 0)
-        <section class="purpose-section py-5">
+        @php $stImg = $fileUrl($about->strengths_image); @endphp
+        <section class="st-section{{ $stImg ? ' has-img' : '' }}">
+            @if($stImg)
+                <div class="st-bg" style="background-image: url('{{ $stImg }}');"></div>
+            @endif
             <div class="container">
-                <div class="row mb-5">
-                    <div class="col-12">
-                        @if(filled($about->strengths_badge))
-                            <span class="badge bg-light text-burgundy mb-3">{{ $about->strengths_badge }}</span>
-                        @endif
-                        @if(filled($about->strengths_intro))
-                            <p class="section-intro fw-semibold text-dark">{{ $about->strengths_intro }}</p>
-                        @endif
-                    </div>
+                <div class="st-head">
+                    @if(filled($about->strengths_badge))
+                        <span class="st-badge">{{ $about->strengths_badge }}</span>
+                    @endif
+                    @if(filled($about->strengths_intro))
+                        <h2 class="st-intro">{{ $about->strengths_intro }}</h2>
+                    @endif
                 </div>
-                <div class="row g-4 justify-content-center">
+                <div class="st-list">
                     @foreach($strengths as $i => $item)
-                        <div class="col-md-6 {{ $i >= $sWideFrom ? 'col-lg-6' : 'col-lg-4' }}">
-                            <div class="purpose-card">
-                                <div class="purpose-icon mb-3">
-                                    <i class="fa-solid {{ $item['icon'] ?? 'fa-star' }} fa-2x text-burgundy"></i>
-                                </div>
-                                <h4 class="text-dark-emphasis mb-3">{{ $item['title'] }}</h4>
-                                @if(filled($item['body'] ?? null))
-                                    <p class="text-muted mb-0">{{ $item['body'] }}</p>
-                                @endif
-                            </div>
+                        <div class="st-row">
+                            <span class="st-num">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</span>
+                            <span class="st-icon"><i class="fa-solid {{ $item['icon'] ?? 'fa-star' }}"></i></span>
+                            <h3 class="st-title">{{ $item['title'] }}</h3>
+                            @if(filled($item['body'] ?? null))
+                                <p class="st-body">{{ $item['body'] }}</p>
+                            @endif
                         </div>
                     @endforeach
                 </div>

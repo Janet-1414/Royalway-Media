@@ -135,6 +135,15 @@ class ManageAboutPage extends Page implements HasForms
                             ->label('Intro sentence')
                             ->rows(2),
 
+                        Forms\Components\FileUpload::make('strengths_image')
+                            ->label('Background photo')
+                            ->image()
+                            ->disk('public')
+                            ->directory('about')
+                            ->imageEditor()
+                            ->helperText('Shown behind the cards. It is blurred and darkened automatically. Leave empty for plain blue.')
+                            ->columnSpanFull(),
+
                         Forms\Components\Repeater::make('strengths')
                             ->label('Cards')
                             ->schema([
@@ -144,6 +153,8 @@ class ManageAboutPage extends Page implements HasForms
                                         'fa-award' => 'Award',
                                         'fa-bolt' => 'Lightning',
                                         'fa-map-location-dot' => 'Map',
+                                        'fa-location-dot' => 'Location pin',
+                                        'fa-atom' => 'Atom',
                                         'fa-handshake' => 'Handshake',
                                         'fa-lightbulb' => 'Idea',
                                         'fa-bullseye' => 'Target',

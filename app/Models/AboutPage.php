@@ -11,7 +11,7 @@ class AboutPage extends Model
         'intro_badge', 'intro_heading', 'intro_body', 'intro_images',
         'stats',
         'mission_image', 'mission', 'vision', 'purpose',
-        'strengths_badge', 'strengths_intro', 'strengths',
+        'strengths_badge', 'strengths_intro', 'strengths_image', 'strengths',
         'cta_title', 'cta_text',
     ];
 
