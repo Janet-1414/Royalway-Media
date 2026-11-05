@@ -28,7 +28,7 @@
 
     <!-- CSS Files -->
     <link href="{{ asset('assets/css/soft-design-system-pro.min.css') }}" rel="stylesheet" />
-    <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet"/>
+    <link href="{{ asset('assets/css/style.css') }}?v={{ filemtime(public_path('assets/css/style.css')) }}" rel="stylesheet"/>
 
     @stack('styles')
 

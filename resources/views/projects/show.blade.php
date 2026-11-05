@@ -4,96 +4,115 @@
 
 @section('title', $project->title . ' - RoyalWay Media')
 
+@php
+    // Rich text editors can save "<p></p>" for an empty field, so test for visible content
+    $isBlank = fn ($html) => trim(strip_tags((string) $html, '<img><iframe><video>')) === '';
+
+    $heroImg = $project->image_url;
+    $logoOk = $project->client_logo && file_exists(storage_path('app/public/' . $project->client_logo));
+    // Only the Lead field goes under the title, so the description is not repeated right below it
+    $subtitle = filled($project->lead) ? $project->lead : null;
+
+    $tags = collect(explode(',', (string) $project->tags))
+        ->map(fn ($t) => str_replace(' ', '', ltrim(trim($t), '#')))
+        ->filter()
+        ->values();
+
+    $stats = collect($project->headline_stats ?? [])
+        ->filter(fn ($s) => filled($s['value'] ?? null) && filled($s['label'] ?? null))
+        ->values()
+        ->take(4);
+
+    $challenge = $isBlank($project->challenge) ? null : $project->challenge;
+
+    $narrative = collect($project->narrative_blocks ?? [])
+        ->filter(fn ($b) => filled($b['heading'] ?? null))
+        ->values();
+
+    // A short, plain challenge is shown as a callout box. A long one (headings or lists inside)
+    // is the full story, so it is hidden when Story Blocks exist to avoid showing it twice
+    $challengeShort = $challenge
+        && mb_strlen(trim(strip_tags($challenge))) <= 450
+        && ! preg_match('/<(h[1-6]|ul|ol)\b/i', $challenge);
+
+    $sideItems = collect($project->side_card_items ?? [])
+        ->map(fn ($i) => is_array($i) ? ($i['item'] ?? '') : $i)
+        ->filter()
+        ->values();
+
+    $services = $project->services ?? collect();
+    $summaryFile = $project->summary_pdf ?: $project->download_link;
+    $hasDownloads = $project->report_url || $summaryFile;
+
+    $gallery = array_values(array_filter((array) ($project->gallery ?? [])));
+    $gCount = count($gallery);
+
+    $outcome = filled($project->outcome_text)
+        ? $project->outcome_text
+        : (! $project->has_results_data && ! $isBlank($project->results) ? strip_tags((string) $project->results) : null);
+@endphp
+
 @section('content')
-    <!-- Page Header -->
-    <section class="page-header-section">
-        <div class="container">
-            <div class="row">
-                <div class="col-12 text-center">
-                    <h1 class="text-white">{{ $project->title }}</h1>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Project Intro Section -->
-    <section class="project-intro-section py-5">
+    <!-- Hero -->
+    <section class="pj-hero-wrap">
         <div class="container">
-            {{-- Client Logo & Lead --}}
-            <div class="row align-items-start mb-4 g-4">
-                <div class="col-lg-3 col-md-4 col-12">
-                    <div class="client-block">
-                        @if($project->client_logo)
-                            <img src="{{ asset('storage/' . $project->client_logo) }}"
-                                 alt="{{ $project->client }}"
-                                 class="img-fluid mb-2 client-logo">
-                        @else
-                            <div class="client-monogram">
-                                {{ $project->client_initials }}
-                            </div>
-                        @endif
-                        <span class="client-badge">{{ $project->client }}</span>
-                    </div>
-                </div>
-                <div class="col-lg-9 col-md-8 col-12">
-                    @if($project->lead)
-                        <p class="project-lead mb-0">{{ $project->lead }}</p>
-                    @elseif($project->description)
-                        <p class="project-lead mb-0">{{ $project->description }}</p>
+            <div class="pj-hero{{ $stats->count() ? '' : ' pj-hero--flat' }}"@if($heroImg) style="background-image: linear-gradient(180deg, rgba(10, 18, 40, .55), rgba(10, 18, 40, .85)), url('{{ $heroImg }}');"@endif>
+                <div class="pj-hero-top">
+                    @if(filled($project->client))
+                        <span class="pj-chip">
+                            @if($logoOk)
+                                <img src="{{ asset('storage/' . $project->client_logo) }}" alt="" class="pj-chip-logo">
+                            @else
+                                <span class="pj-chip-mono">{{ $project->client_initials }}</span>
+                            @endif
+                            {{ $project->client }}
+                        </span>
+                    @else
+                        <span></span>
+                    @endif
+
+                    @if($project->is_featured)
+                        <span class="pj-featured"><i class="fas fa-star"></i> Featured project</span>
                     @endif
                 </div>
-            </div>
 
-            {{-- Meta Bar --}}
-            <div class="project-meta-bar">
-                <div class="meta-items">
-                    <div class="meta-item">
-                        <span class="meta-label">Category</span>
-                        <span class="meta-value">{{ $project->category }}</span>
-                    </div>
-                    @if($project->project_date)
-                        <div class="meta-item">
-                            <span class="meta-label">Date</span>
-                            <span class="meta-value">{{ $project->formatted_date }}</span>
+                <div class="pj-hero-body">
+                    @if($project->category)
+                        <span class="pj-hero-cat">{{ $project->category }}</span>
+                    @endif
+                    <h1 class="pj-hero-title">{{ $project->title }}</h1>
+                    @if(filled($subtitle))
+                        <p class="pj-hero-sub">{{ $subtitle }}</p>
+                    @endif
+
+                    @if($project->project_date || $project->location)
+                        <div class="pj-meta">
+                            @if($project->project_date)
+                                <span>{{ $project->formatted_date }}</span>
+                            @endif
+                            @if($project->location)
+                                <span>{{ $project->location }}</span>
+                            @endif
                         </div>
                     @endif
-                    @if($project->location)
-                        <div class="meta-item">
-                            <span class="meta-label">Location</span>
-                            <span class="meta-value">{{ $project->location }}</span>
+
+                    @if($tags->count())
+                        <div class="pj-tags">
+                            @foreach($tags as $tag)
+                                <span>#{{ $tag }}</span>
+                            @endforeach
                         </div>
                     @endif
                 </div>
-                <div class="meta-actions">
-                    @if($project->report_url)
-                        <a href="{{ $project->report_url }}" target="_blank" class="btn btn-burgundy btn-sm">
-                            <i class="fas fa-external-link-alt me-1"></i> View Full Report
-                        </a>
-                    @endif
-                    @if($project->summary_pdf)
-                        <a href="{{ asset('storage/' . $project->summary_pdf) }}" class="btn btn-outline-burgundy btn-sm" download>
-                            <i class="fas fa-download me-1"></i> Download Summary
-                        </a>
-                    @elseif($project->download_link)
-                        <a href="{{ asset('storage/' . $project->download_link) }}" class="btn btn-outline-burgundy btn-sm" download>
-                            <i class="fas fa-download me-1"></i> Download Summary
-                        </a>
-                    @endif
-                    @if(!$project->report_url && !$project->summary_pdf && !$project->download_link)
-                        <a href="{{ route('contact.index') }}" class="btn btn-burgundy btn-sm">
-                            Discuss a Similar Project
-                        </a>
-                    @endif
-                </div>
             </div>
 
-            {{-- Headline Stats --}}
-            @if($project->headline_stats && count($project->headline_stats) > 0)
-                <div class="headline-stats">
-                    @foreach($project->headline_stats as $stat)
-                        <div class="stat-item">
-                            <span class="stat-value">{{ $stat['value'] }}</span>
-                            <span class="stat-label">{{ $stat['label'] }}</span>
+            @if($stats->count())
+                <div class="pj-stats" style="--c: {{ $stats->count() }}">
+                    @foreach($stats as $stat)
+                        <div class="pj-stat">
+                            <b>{{ $stat['value'] }}</b>
+                            <span>{{ $stat['label'] }}</span>
                         </div>
                     @endforeach
                 </div>
@@ -101,174 +120,109 @@
         </div>
     </section>
 
-    {{-- Story Section with Side Card --}}
-    @if($project->narrative_blocks || $project->challenge || $project->side_card_items)
-        <section class="project-story-section py-5">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-12">
-                        {{-- Narrative Blocks --}}
-                        @if($project->narrative_blocks && count($project->narrative_blocks) > 0)
-                            @foreach($project->narrative_blocks as $block)
-                                <div class="narrative-block">
-                                    <h3>{{ $block['heading'] }}</h3>
-                                    <div class="narrative-body">{!! $block['body'] !!}</div>
-                                </div>
-                            @endforeach
-                        @elseif($project->challenge)
-                            <div class="narrative-block">
-                                <h2>The Challenge</h2>
-                                <div class="narrative-body">{!! $project->challenge !!}</div>
-                            </div>
-                        @endif
-                    </div>
-                    <div class="col-lg-4 col-12">
-                        {{-- Side Card --}}
-                        @if($project->side_card_items && count($project->side_card_items) > 0)
-                            <div class="project-side-card">
-                                <h3>{{ $project->side_card_title ?? 'Services delivered' }}</h3>
-                                <ul class="side-card-list">
-                                    @foreach($project->side_card_items as $item)
-                                        <li><i class="fas fa-check text-burgundy me-2"></i>{{ is_array($item) ? $item['item'] : $item }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @elseif($project->services && $project->services->count() > 0)
-                            <div class="project-side-card">
-                                <h3>Services delivered</h3>
-                                <ul class="side-card-list">
-                                    @foreach($project->services as $service)
-                                        <li>
-                                            <a href="{{ route('services.show', $service->slug) }}" class="text-decoration-none">
-                                                <i class="fas fa-check text-burgundy me-2"></i>{{ $service->title }}
-                                            </a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </section>
-    @endif
+    <!-- Description, story and side cards -->
+    <section class="pj-main">
+        <div class="container">
+            <div class="row g-4 g-lg-5">
+                <div class="col-lg-8">
+                    @if(filled($project->description))
+                        <span class="pj-label">Description</span>
+                        <h2 class="pj-h2">About this project</h2>
+                        <div class="pj-text">{!! nl2br(e($project->description)) !!}</div>
+                    @endif
 
-    <!-- Gallery Section -->
-    @if($project->gallery && count($project->gallery) > 0)
-        <section class="gallery-section py-5">
-            <div class="container">
-                <h2 class="mb-4">The Gallery</h2>
-                <div class="row g-3">
-                    @foreach($project->gallery as $index => $image)
-                        <div class="col-lg-4 col-md-6 col-6">
-                            <div class="gallery-card" data-gallery-index="{{ $index }}">
-                                <img src="{{ asset('storage/' . $image) }}"
-                                     alt="Gallery Image {{ $index + 1 }}"
-                                     loading="lazy">
-                            </div>
+                    @if($challenge && $challengeShort)
+                        <div class="pj-challenge">
+                            <span class="pj-challenge-label">The challenge</span>
+                            <div class="pj-challenge-body">{!! $challenge !!}</div>
                         </div>
-                    @endforeach
-                </div>
-            </div>
-        </section>
+                    @elseif($challenge && $narrative->isEmpty())
+                        <div class="pj-text pj-story">{!! $challenge !!}</div>
+                    @endif
 
-        <!-- Lightbox -->
-        <div class="lightbox" id="galleryLightbox">
-            <button class="lightbox-close" aria-label="Close">&times;</button>
-            <button class="lightbox-prev" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
-            <button class="lightbox-next" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
-            <div class="lightbox-content">
-                <img src="" alt="Gallery Image" id="lightboxImage">
-            </div>
-            <div class="lightbox-counter">
-                <span id="lightboxCurrent">1</span> / <span id="lightboxTotal">{{ count($project->gallery) }}</span>
+                    @if($narrative->count())
+                        <ol class="pj-timeline">
+                            @foreach($narrative as $i => $block)
+                                <li>
+                                    <span class="pj-step">{{ $i + 1 }}</span>
+                                    <h3>{{ $block['heading'] }}</h3>
+                                    <div class="pj-text">{!! $block['body'] ?? '' !!}</div>
+                                </li>
+                            @endforeach
+                        </ol>
+                    @endif
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="pj-aside">
+                        @if($sideItems->count())
+                            <div class="pj-card">
+                                <span class="pj-card-label">{{ $project->side_card_title ?: 'Services delivered' }}</span>
+                                <ul class="pj-check">
+                                    @foreach($sideItems as $item)
+                                        <li><i class="fas fa-check"></i><span>{{ $item }}</span></li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                        @if($hasDownloads)
+                            <div class="pj-card">
+                                <span class="pj-card-label">Downloads</span>
+                                @if($project->report_url)
+                                    <a href="{{ $project->report_url }}" class="pj-dl" target="_blank" rel="noopener">
+                                        <span>Full report</span>
+                                        <em>Open link <i class="fas fa-external-link-alt"></i></em>
+                                    </a>
+                                @endif
+                                @if($summaryFile)
+                                    <a href="{{ asset('storage/' . $summaryFile) }}" class="pj-dl" download>
+                                        <span>Summary PDF</span>
+                                        <em>Download <i class="fas fa-download"></i></em>
+                                    </a>
+                                @endif
+                            </div>
+                        @endif
+
+                        <div class="pj-card">
+                            @if(filled($project->client))
+                                <div class="pj-kv">
+                                    <span>Client</span>
+                                    <b>{{ $project->client }}</b>
+                                </div>
+                            @endif
+                            @if($project->category)
+                                <div class="pj-kv">
+                                    <span>Category</span>
+                                    <b>{{ $project->category }}</b>
+                                </div>
+                            @endif
+                            <a href="{{ route('contact.index') }}" class="pj-btn">Discuss a Similar Project</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+    </section>
 
-        @push('scripts')
-        <script>
-        (function() {
-            const galleryImages = @json($project->gallery);
-            const lightbox = document.getElementById('galleryLightbox');
-            const lightboxImg = document.getElementById('lightboxImage');
-            const lightboxCurrent = document.getElementById('lightboxCurrent');
-            const lightboxTotal = document.getElementById('lightboxTotal');
-            let currentIndex = 0;
-
-            function openLightbox(index) {
-                currentIndex = index;
-                updateLightboxImage();
-                lightbox.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-
-            function closeLightbox() {
-                lightbox.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-
-            function updateLightboxImage() {
-                lightboxImg.src = '{{ asset("storage") }}/' + galleryImages[currentIndex];
-                lightboxCurrent.textContent = currentIndex + 1;
-            }
-
-            function nextImage() {
-                currentIndex = (currentIndex + 1) % galleryImages.length;
-                updateLightboxImage();
-            }
-
-            function prevImage() {
-                currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
-                updateLightboxImage();
-            }
-
-            // Click handlers
-            document.querySelectorAll('.gallery-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    openLightbox(parseInt(card.dataset.galleryIndex));
-                });
-            });
-
-            document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
-            document.querySelector('.lightbox-prev').addEventListener('click', prevImage);
-            document.querySelector('.lightbox-next').addEventListener('click', nextImage);
-
-            lightbox.addEventListener('click', (e) => {
-                if (e.target === lightbox) closeLightbox();
-            });
-
-            // Keyboard navigation
-            document.addEventListener('keydown', (e) => {
-                if (!lightbox.classList.contains('active')) return;
-                if (e.key === 'Escape') closeLightbox();
-                if (e.key === 'ArrowRight') nextImage();
-                if (e.key === 'ArrowLeft') prevImage();
-            });
-
-            // Touch swipe support
-            let touchStartX = 0;
-            lightbox.addEventListener('touchstart', (e) => {
-                touchStartX = e.touches[0].clientX;
-            }, { passive: true });
-
-            lightbox.addEventListener('touchend', (e) => {
-                const diff = touchStartX - e.changedTouches[0].clientX;
-                if (Math.abs(diff) > 50) {
-                    diff > 0 ? nextImage() : prevImage();
-                }
-            }, { passive: true });
-        })();
-        </script>
-        @endpush
+    <!-- Outcome -->
+    @if($outcome)
+        <section class="pj-outcome-wrap">
+            <div class="container">
+                <div class="pj-outcome">
+                    <span class="pj-pill">Outcome</span>
+                    <p>{{ $outcome }}</p>
+                </div>
+            </div>
+        </section>
     @endif
 
-    {{-- Results & Impact (Variant A) --}}
+    {{-- Results & Impact (quantitative results) --}}
     @if($project->has_results_data)
         <section class="project-results-section py-5 bg-light">
             <div class="container">
                 <h2 class="mb-4">Results & Impact</h2>
                 <div class="row g-4">
-                    {{-- Progress Bars / Channels --}}
                     @if($project->result_channels && count($project->result_channels) > 0)
                         <div class="col-lg-5 col-12">
                             <div class="results-card">
@@ -290,7 +244,6 @@
                         </div>
                     @endif
 
-                    {{-- KPI Tiles --}}
                     @if($project->result_kpis && count($project->result_kpis) > 0)
                         <div class="col-lg-7 col-12">
                             <div class="kpi-grid">
@@ -313,39 +266,34 @@
                 @endif
             </div>
         </section>
-    @elseif($project->outcome_text || $project->results)
-        {{-- Outcome Callout (Variant B) --}}
-        <section class="project-outcome-section py-5">
-            <div class="container">
-                <div class="outcome-callout">
-                    <span class="outcome-label">Outcome</span>
-                    <p class="outcome-text">
-                        {{ $project->outcome_text ?? strip_tags($project->results) }}
-                    </p>
-                </div>
-            </div>
-        </section>
     @endif
 
-    {{-- Services Offered (if not shown in side card) --}}
-    @if($project->services && $project->services->count() > 0 && !($project->side_card_items && count($project->side_card_items) > 0))
-        <section class="py-5 bg-light">
+    <!-- What we delivered -->
+    @if($services->count() > 0)
+        <section class="pj-delivered">
             <div class="container">
-                <h2 class="mb-4">Services Offered</h2>
-                <div class="row g-3">
-                    @foreach($project->services as $service)
-                        <div class="col-lg-3 col-md-4 col-6">
-                            <a href="{{ route('services.show', $service->slug) }}" class="text-decoration-none">
-                                <div class="service-mini-card">
-                                    @if($service->image_url)
-                                        <img src="{{ $service->image_url }}"
-                                             alt="{{ $service->title }}"
-                                             class="img-fluid">
+                <span class="pj-label">What we delivered</span>
+                <h2 class="pj-h2">How RoyalWay brought it to life</h2>
+                <div class="row g-3 g-lg-4 mt-1">
+                    @foreach($services as $service)
+                        @php
+                            $svcIcon = ($service->icon && file_exists(storage_path('app/public/' . $service->icon)))
+                                ? asset('storage/' . $service->icon)
+                                : null;
+                        @endphp
+                        <div class="col-6 col-lg-3">
+                            <a href="{{ route('services.show', $service->slug) }}" class="pj-svc">
+                                <span class="pj-svc-icon">
+                                    @if($svcIcon)
+                                        <img src="{{ $svcIcon }}" alt="">
                                     @else
-                                        @include('components.card-fallback', ['type' => 'service', 'icon' => 'fa-concierge-bell'])
+                                        <i class="fas fa-circle-check"></i>
                                     @endif
-                                    <span class="service-mini-title">{{ $service->title }}</span>
-                                </div>
+                                </span>
+                                <h3>{{ $service->title }}</h3>
+                                @if($service->short_description)
+                                    <p>{{ Str::limit($service->short_description, 90) }}</p>
+                                @endif
                             </a>
                         </div>
                     @endforeach
@@ -354,33 +302,137 @@
         </section>
     @endif
 
-    <!-- More Projects -->
-    @if($relatedProjects->count() > 0)
-        <section class="related-projects-section py-5">
+    <!-- Gallery -->
+    @if($gCount > 0)
+        <section class="pj-gallery">
             <div class="container">
-                <div class="section-header mb-4">
-                    <h2>More Projects</h2>
+                <span class="pj-label">The gallery</span>
+                <div class="pj-gal pj-gal-{{ min($gCount, 5) }}">
+                    @foreach(array_slice($gallery, 0, 5) as $index => $image)
+                        <div class="pj-gal-item" data-gallery-index="{{ $index }}" role="button" tabindex="0" aria-label="Open photo {{ $index + 1 }}">
+                            <img src="{{ asset('storage/' . $image) }}" alt="{{ $project->title }} photo {{ $index + 1 }}" loading="lazy">
+                            @if($index === 4 && $gCount > 5)
+                                <span class="pj-gal-more"><i class="fas fa-images"></i> + View full gallery</span>
+                            @endif
+                        </div>
+                    @endforeach
                 </div>
-                <div class="row g-4">
+            </div>
+        </section>
+
+        <!-- Lightbox -->
+        <div class="lightbox" id="galleryLightbox">
+            <button class="lightbox-close" aria-label="Close">&times;</button>
+            <button class="lightbox-prev" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+            <button class="lightbox-next" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+            <div class="lightbox-content">
+                <img src="" alt="Gallery Image" id="lightboxImage">
+            </div>
+            <div class="lightbox-counter">
+                <span id="lightboxCurrent">1</span> / <span id="lightboxTotal">{{ $gCount }}</span>
+            </div>
+        </div>
+
+        @push('scripts')
+            <script>
+                (function() {
+                    const galleryImages = @json($gallery);
+                    const lightbox = document.getElementById('galleryLightbox');
+                    const lightboxImg = document.getElementById('lightboxImage');
+                    const lightboxCurrent = document.getElementById('lightboxCurrent');
+                    let currentIndex = 0;
+
+                    function openLightbox(index) {
+                        currentIndex = index;
+                        updateLightboxImage();
+                        lightbox.classList.add('active');
+                        document.body.style.overflow = 'hidden';
+                    }
+
+                    function closeLightbox() {
+                        lightbox.classList.remove('active');
+                        document.body.style.overflow = '';
+                    }
+
+                    function updateLightboxImage() {
+                        lightboxImg.src = '{{ asset("storage") }}/' + galleryImages[currentIndex];
+                        lightboxCurrent.textContent = currentIndex + 1;
+                    }
+
+                    function nextImage() {
+                        currentIndex = (currentIndex + 1) % galleryImages.length;
+                        updateLightboxImage();
+                    }
+
+                    function prevImage() {
+                        currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
+                        updateLightboxImage();
+                    }
+
+                    document.querySelectorAll('.pj-gal-item').forEach(card => {
+                        card.addEventListener('click', () => openLightbox(parseInt(card.dataset.galleryIndex)));
+                        card.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                openLightbox(parseInt(card.dataset.galleryIndex));
+                            }
+                        });
+                    });
+
+                    document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+                    document.querySelector('.lightbox-prev').addEventListener('click', prevImage);
+                    document.querySelector('.lightbox-next').addEventListener('click', nextImage);
+
+                    lightbox.addEventListener('click', (e) => {
+                        if (e.target === lightbox) closeLightbox();
+                    });
+
+                    document.addEventListener('keydown', (e) => {
+                        if (!lightbox.classList.contains('active')) return;
+                        if (e.key === 'Escape') closeLightbox();
+                        if (e.key === 'ArrowRight') nextImage();
+                        if (e.key === 'ArrowLeft') prevImage();
+                    });
+
+                    let touchStartX = 0;
+                    lightbox.addEventListener('touchstart', (e) => {
+                        touchStartX = e.touches[0].clientX;
+                    }, { passive: true });
+
+                    lightbox.addEventListener('touchend', (e) => {
+                        const diff = touchStartX - e.changedTouches[0].clientX;
+                        if (Math.abs(diff) > 50) {
+                            diff > 0 ? nextImage() : prevImage();
+                        }
+                    }, { passive: true });
+                })();
+            </script>
+        @endpush
+    @endif
+
+    <!-- More projects -->
+    @if($relatedProjects->count() > 0)
+        <section class="pj-related">
+            <div class="container">
+                <span class="pj-label">More projects</span>
+                <h2 class="pj-h2">Keep exploring our work</h2>
+                <div class="row g-4 mt-1">
                     @foreach($relatedProjects as $related)
                         <div class="col-lg-4 col-md-6 col-12">
-                            <a href="{{ route('projects.show', $related->slug) }}" class="text-decoration-none">
-                                <div class="project-card">
-                                    <div class="project-image">
-                                        @if($related->category)
-                                            <span class="category-pill">{{ $related->category }}</span>
-                                        @endif
-                                        @if($related->image_url)
-                                            <img src="{{ $related->image_url }}" alt="{{ $related->title }}" class="img-fluid">
-                                        @else
-                                            @include('components.card-fallback', ['type' => 'project', 'icon' => 'fa-briefcase'])
-                                        @endif
-                                    </div>
-                                    <div class="project-content">
-                                        <p class="fw-700 text-dark-emphasis mb-2 card-title">{{ $related->title }}</p>
-                                        <p class="text-muted mb-3">{{ Str::limit($related->description, 80) }}</p>
-                                        <span class="cta-link">Learn More <i class="fas fa-arrow-right ms-2"></i></span>
-                                    </div>
+                            <a href="{{ route('projects.show', $related->slug) }}" class="pj-rel">
+                                <div class="pj-rel-img">
+                                    @if($related->image_url)
+                                        <img src="{{ $related->image_url }}" alt="{{ $related->title }}" loading="lazy">
+                                    @else
+                                        <div class="pj-rel-ph"><i class="fas fa-briefcase"></i></div>
+                                    @endif
+                                </div>
+                                <div class="pj-rel-body">
+                                    @if($related->category)
+                                        <span class="pj-rel-cat">{{ $related->category }}</span>
+                                    @endif
+                                    <h3>{{ $related->title }}</h3>
+                                    <span class="cta-link">Learn more <i class="fas fa-arrow-right ms-2"></i></span>
                                 </div>
                             </a>
                         </div>
@@ -389,4 +441,18 @@
             </div>
         </section>
     @endif
+
+    <!-- Closing banner -->
+    <section class="pj-cta-wrap">
+        <div class="container">
+            <div class="pj-cta">
+                <h2>Planning something like this?</h2>
+                <p>Tell us about your idea and we will bring it to life.</p>
+                <div class="pj-cta-btns">
+                    <a href="{{ route('contact.index') }}" class="pj-btn-white">Discuss a Similar Project</a>
+                    <a href="{{ route('contact.index') }}" class="pj-btn-ghost">Start a Project</a>
+                </div>
+            </div>
+        </div>
+    </section>
 @endsection

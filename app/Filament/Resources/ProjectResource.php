@@ -143,7 +143,7 @@ class ProjectResource extends Resource
                                                     ->placeholder('e.g., Children reached'),
                                             ])
                                             ->columns(2)
-                                            ->maxItems(3)
+                                            ->maxItems(4)
                                             ->defaultItems(0)
                                             ->columnSpanFull(),
                                     ]),
