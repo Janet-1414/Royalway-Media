@@ -1,9 +1,6 @@
 <?php
 /**
  * File Path: app/Http/Controllers/ResourceController.php
- *
- * Run: php artisan make:controller ResourceController
- * Then replace content with this file
  */
 
 namespace App\Http\Controllers;
@@ -20,23 +17,57 @@ class ResourceController extends Controller
     {
         $query = ResourceModel::published();
 
-        // Filter by type if provided
-        if ($request->has('type') && $request->type) {
+        if ($request->filled('type')) {
             $query->where('type', $request->type);
         }
 
-        // Get resources with pagination
-        $resources = $query->latest('published_at')->paginate(12);
+        if ($request->filled('search')) {
+            $term = trim((string) $request->input('search'));
+            $query->where(function ($q) use ($term) {
+                $q->where('title', 'like', '%' . $term . '%')
+                    ->orWhere('excerpt', 'like', '%' . $term . '%')
+                    ->orWhere('author', 'like', '%' . $term . '%');
+            });
+        }
 
-        // Get resource types for filter
+        $resources = $query->latest('published_at')->paginate(12)->withQueryString();
+
         $types = [
-            'blog' => 'Blog Posts',
+            'blog' => 'Insights',
             'publication' => 'Publications',
             'communication_asset' => 'Communication Assets',
             'other' => 'Other',
         ];
 
         return view('resources.index', compact('resources', 'types'));
+    }
+
+    /**
+     * Display the Insights page (published resources of type "blog")
+     */
+    public function insights(Request $request)
+    {
+        $base = ResourceModel::published()->blogs();
+        $search = trim((string) $request->input('search'));
+
+        // The newest article is shown in the hero
+        $featured = (clone $base)->latest('published_at')->latest('id')->first();
+
+        $query = clone $base;
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('excerpt', 'like', '%' . $search . '%')
+                    ->orWhere('author', 'like', '%' . $search . '%');
+            });
+        } elseif ($featured) {
+            $query->where('id', '!=', $featured->id);
+        }
+
+        $posts = $query->latest('published_at')->latest('id')->paginate(9)->withQueryString();
+
+        return view('insights.index', compact('posts', 'featured', 'search'));
     }
 
     /**

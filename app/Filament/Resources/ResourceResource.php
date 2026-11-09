@@ -49,7 +49,7 @@ class ResourceResource extends Resource
                         Forms\Components\Select::make('type')
                             ->required()
                             ->options([
-                                'blog' => 'Blog Post',
+                                'blog' => 'Insight Article',
                                 'publication' => 'Publication',
                                 'communication_asset' => 'Communication Asset',
                                 'other' => 'Other',

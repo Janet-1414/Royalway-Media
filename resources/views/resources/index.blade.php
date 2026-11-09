@@ -61,7 +61,7 @@
                             <div class="project-content d-flex flex-column flex-grow-1">
                         <span class="project-tag">
                             @switch($resource->type)
-                                @case('blog') Blog Post @break
+                                @case('blog') Insight @break
                                 @case('publication') Publication @break
                                 @case('communication_asset') Communication Asset @break
                                 @default {{ ucfirst($resource->type) }}

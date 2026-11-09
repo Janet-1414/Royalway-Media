@@ -93,7 +93,7 @@ Route::get('/our-commitment-to-sustainability', fn() => redirect()->route('about
 Route::get('/communication-assets', fn() => redirect()->route('resources.index', ['type' => 'communication_asset'], 301));
 Route::get('/image-gallery', fn() => redirect()->route('projects.index', [], 301));
 Route::get('/video-gallery', fn() => redirect()->route('projects.index', [], 301));
-Route::get('/blog', fn() => redirect()->route('resources.index', ['type' => 'blog'], 301));
+Route::get('/blog', fn() => redirect()->route('insights.index', [], 301));
 Route::get('/service', fn() => redirect()->route('services.index', [], 301));
 Route::get('/case-study', fn() => redirect()->route('projects.index', [], 301));
 Route::get('/p/privacy-policy', fn() => redirect()->route('policies.index', [], 301));
@@ -126,7 +126,10 @@ Route::get('/services/{slug}', [ServiceController::class, 'show'])->name('servic
 Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
 Route::get('/projects/{slug}', [ProjectController::class, 'show'])->name('projects.show');
 
-// Resources (Blog, Publications, etc.)
+// Insights (published resources of type "blog")
+Route::get('/insights', [ResourceController::class, 'insights'])->name('insights.index');
+
+// Resources (Publications, Communication Assets, etc.)
 Route::get('/resources', [ResourceController::class, 'index'])->name('resources.index');
 Route::get('/resources/{slug}', [ResourceController::class, 'show'])->name('resources.show');
 
