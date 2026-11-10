@@ -5,6 +5,7 @@
     $seoImage = $__env->yieldContent('seo_image') ?: setting_file_url('seo_og_image', asset('assets/img/about-1.png'));
     $canonicalUrl = $__env->yieldContent('canonical') ?: url()->current();
     $siteName = setting('site_name', 'RoyalWay Media');
+    $ogType = $__env->yieldContent('og_type') ?: 'website';
 @endphp
 
 <title>{{ $seoTitle }}</title>
@@ -12,7 +13,7 @@
 <link rel="canonical" href="{{ $canonicalUrl }}">
 
 {{-- Open Graph --}}
-<meta property="og:type" content="website">
+<meta property="og:type" content="{{ $ogType }}">
 <meta property="og:title" content="{{ $seoTitle }}">
 <meta property="og:description" content="{{ Str::limit($seoDescription, 160) }}">
 <meta property="og:url" content="{{ $canonicalUrl }}">

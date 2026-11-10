@@ -8,6 +8,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ResourceController;
+use App\Http\Controllers\ResourceEngagementController;
 use App\Http\Controllers\PolicyController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\EventBriefController;
@@ -90,7 +91,6 @@ Route::get('/our-purpose', fn() => redirect()->route('about', [], 301));
 Route::get('/diversity-&-inclusion', fn() => redirect()->route('about', [], 301));
 Route::get('/diversity-%26-inclusion', fn() => redirect()->route('about', [], 301));
 Route::get('/our-commitment-to-sustainability', fn() => redirect()->route('about', [], 301));
-Route::get('/communication-assets', fn() => redirect()->route('resources.index', ['type' => 'communication_asset'], 301));
 Route::get('/image-gallery', fn() => redirect()->route('projects.index', [], 301));
 Route::get('/video-gallery', fn() => redirect()->route('projects.index', [], 301));
 Route::get('/blog', fn() => redirect()->route('insights.index', [], 301));
@@ -126,12 +126,28 @@ Route::get('/services/{slug}', [ServiceController::class, 'show'])->name('servic
 Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
 Route::get('/projects/{slug}', [ProjectController::class, 'show'])->name('projects.show');
 
-// Insights (published resources of type "blog")
+// News & Insights (published resources of type "blog")
 Route::get('/insights', [ResourceController::class, 'insights'])->name('insights.index');
 
-// Resources (Publications, Communication Assets, etc.)
+// Communication Assets (published resources of type "communication_asset")
+Route::get('/communication-assets', [ResourceController::class, 'assets'])->name('assets.index');
+
+// Old Resources listing: kept as a named route, now a permanent redirect
 Route::get('/resources', [ResourceController::class, 'index'])->name('resources.index');
+
+// Article and asset pages
 Route::get('/resources/{slug}', [ResourceController::class, 'show'])->name('resources.show');
+
+// Reader engagement
+Route::post('/resources/{slug}/view', [ResourceEngagementController::class, 'view'])
+    ->middleware('throttle:30,1,resource-views')
+    ->name('resources.view');
+Route::post('/resources/{slug}/react', [ResourceEngagementController::class, 'react'])
+    ->middleware('throttle:20,1,resource-reactions')
+    ->name('resources.react');
+Route::post('/resources/{slug}/comments', [ResourceEngagementController::class, 'comment'])
+    ->middleware('throttle:6,1,resource-comments')
+    ->name('resources.comments.store');
 
 // Policies
 Route::get('/policies', [PolicyController::class, 'index'])->name('policies.index');

@@ -12,10 +12,13 @@ use App\Filament\Resources\ResourceResource\Pages;
 use App\Models\Resource as ResourceModel;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class ResourceResource extends Resource
 {
@@ -31,6 +34,9 @@ class ResourceResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $isBlog = fn (Get $get) => $get('type') === 'blog';
+        $isAsset = fn (Get $get) => $get('type') === 'communication_asset';
+
         return $form
             ->schema([
                 Forms\Components\Section::make('Basic Information')
@@ -48,12 +54,23 @@ class ResourceResource extends Resource
 
                         Forms\Components\Select::make('type')
                             ->required()
-                            ->options([
-                                'blog' => 'Insight Article',
-                                'publication' => 'Publication',
-                                'communication_asset' => 'Communication Asset',
-                                'other' => 'Other',
-                            ]),
+                            ->live()
+                            ->options(ResourceModel::TYPE_LABELS)
+                            ->helperText(fn (?ResourceModel $record) => $record && ! in_array($record->type, ResourceModel::PUBLIC_TYPES, true)
+                                ? 'This item uses an old type and is hidden from the website. Choose a type to show it again.'
+                                : null),
+
+                        Forms\Components\TextInput::make('topic')
+                            ->maxLength(100)
+                            ->datalist(fn () => ResourceModel::query()
+                                ->whereNotNull('topic')
+                                ->where('topic', '!=', '')
+                                ->distinct()
+                                ->orderBy('topic')
+                                ->pluck('topic')
+                                ->all())
+                            ->helperText('Used for the topic filters on News & Insights, for example Public Relations or Branding.')
+                            ->visible($isBlog),
 
                         Forms\Components\TextInput::make('author')
                             ->maxLength(255),
@@ -65,6 +82,7 @@ class ResourceResource extends Resource
                         Forms\Components\Textarea::make('excerpt')
                             ->rows(3)
                             ->maxLength(500)
+                            ->helperText('Shown on cards and used as the description when the link is shared.')
                             ->columnSpanFull(),
 
                         Forms\Components\RichEditor::make('content')
@@ -85,12 +103,36 @@ class ResourceResource extends Resource
                             ->default(true),
 
                         Forms\Components\FileUpload::make('file')
-                            ->label('Downloadable File')
+                            ->label('File')
                             ->disk('public')
                             ->directory('resources/files')
-                            ->acceptedFileTypes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']),
+                            ->acceptedFileTypes(ResourceModel::UPLOAD_MIME_TYPES)
+                            ->maxSize(51200)
+                            ->downloadable()
+                            ->openable()
+                            ->live()
+                            ->helperText('PDF, images (JPG, PNG, WEBP, GIF), Word, Excel, PowerPoint, CSV, TXT, MP4, WEBM or MP3. Up to 50 MB.')
+                            ->visible(fn (Get $get, ?ResourceModel $record) => $isAsset($get) || filled($record?->file)),
+
+                        Forms\Components\Placeholder::make('detected_file_type')
+                            ->label('Detected file type')
+                            ->content(fn (Get $get) => static::describeFile($get('file')))
+                            ->visible(fn (Get $get, ?ResourceModel $record) => $isAsset($get) || filled($record?->file)),
                     ])
                     ->columns(2),
+
+                Forms\Components\Section::make('Related projects')
+                    ->schema([
+                        Forms\Components\Select::make('projects')
+                            ->label('Related projects')
+                            ->relationship('projects', 'title')
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->helperText('The asset appears under Campaign materials on these project pages.')
+                            ->columnSpanFull(),
+                    ])
+                    ->visible($isAsset),
 
                 Forms\Components\Section::make('Publishing')
                     ->schema([
@@ -100,6 +142,17 @@ class ResourceResource extends Resource
                         Forms\Components\Toggle::make('is_published')
                             ->label('Published')
                             ->default(true),
+
+                        Forms\Components\Toggle::make('is_featured')
+                            ->label('Lead story')
+                            ->helperText('Shown as the large lead story on News & Insights. If none is chosen, the newest article is used.')
+                            ->visible($isBlog),
+
+                        Forms\Components\Toggle::make('allow_comments')
+                            ->label('Allow comments')
+                            ->helperText('Comments also need to be switched on in Website Settings.')
+                            ->default(true)
+                            ->visible($isBlog),
                     ])
                     ->columns(2),
 
@@ -108,17 +161,42 @@ class ResourceResource extends Resource
                         Forms\Components\TextInput::make('meta_title')
                             ->label('Meta Title')
                             ->live(onBlur: true)
-                            ->helperText(fn ($state) => strlen($state ?? '') . ' / 60 characters — longer titles may be truncated in Google'),
+                            ->helperText(fn ($state) => strlen($state ?? '') . ' / 60 characters. Longer titles may be truncated in Google.'),
 
                         Forms\Components\Textarea::make('meta_description')
                             ->label('Meta Description')
                             ->rows(2)
                             ->live(onBlur: true)
-                            ->helperText(fn ($state) => strlen($state ?? '') . ' / 160 characters — longer descriptions may be truncated'),
+                            ->helperText(fn ($state) => strlen($state ?? '') . ' / 160 characters. Longer descriptions may be truncated.'),
                     ])
                     ->collapsible()
                     ->collapsed(),
             ]);
+    }
+
+    /**
+     * Readable file type for the uploaded or stored file
+     */
+    protected static function describeFile($state): string
+    {
+        $file = is_array($state) ? collect($state)->first() : $state;
+
+        if ($file instanceof TemporaryUploadedFile) {
+            $extension = strtolower($file->getClientOriginalExtension());
+        } elseif (is_string($file) && $file !== '') {
+            $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+        } else {
+            return 'No file uploaded';
+        }
+
+        $group = 'Other';
+        foreach (ResourceModel::FILE_GROUPS as $key => $extensions) {
+            if (in_array($extension, $extensions, true)) {
+                $group = ResourceModel::FILE_GROUP_LABELS[$key];
+            }
+        }
+
+        return strtoupper($extension) . ' (' . $group . ')';
     }
 
     public static function table(Table $table): Table
@@ -138,17 +216,45 @@ class ResourceResource extends Resource
 
                 Tables\Columns\TextColumn::make('type')
                     ->badge()
-                    ->colors([
-                        'primary' => 'blog',
-                        'success' => 'publication',
-                        'warning' => 'communication_asset',
-                        'secondary' => 'other',
-                    ])
+                    ->formatStateUsing(fn (string $state) => ResourceModel::TYPE_LABELS[$state] ?? 'Hidden (old type)')
+                    ->color(fn (string $state) => match ($state) {
+                        'blog' => 'primary',
+                        'communication_asset' => 'warning',
+                        default => 'gray',
+                    })
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('topic')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('file')
+                    ->label('File')
+                    ->formatStateUsing(fn ($state) => strtoupper(pathinfo((string) $state, PATHINFO_EXTENSION)))
+                    ->badge()
+                    ->color('gray')
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('author')
                     ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('views_count')
+                    ->label('Views')
+                    ->numeric()
                     ->sortable(),
+
+                Tables\Columns\ToggleColumn::make('is_featured')
+                    ->label('Lead')
+                    ->disabled(fn (ResourceModel $record) => $record->type !== 'blog')
+                    ->toggleable(),
+
+                Tables\Columns\IconColumn::make('allow_comments')
+                    ->label('Comments')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\IconColumn::make('is_published')
                     ->boolean()
@@ -164,7 +270,11 @@ class ResourceResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('type'),
+                Tables\Filters\SelectFilter::make('type')
+                    ->options(ResourceModel::TYPE_LABELS),
+                Tables\Filters\Filter::make('hidden_old_types')
+                    ->label('Hidden from website (old types)')
+                    ->query(fn (Builder $query) => $query->whereNotIn('type', ResourceModel::PUBLIC_TYPES)),
                 Tables\Filters\TernaryFilter::make('is_published'),
             ])
             ->actions([

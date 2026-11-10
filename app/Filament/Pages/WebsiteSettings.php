@@ -91,6 +91,10 @@ class WebsiteSettings extends Page implements HasForms
             'google_search_console' => SiteSetting::get('google_search_console'),
             'google_analytics_id' => SiteSetting::get('google_analytics_id'),
 
+            // News & Insights
+            'insights_reactions_enabled' => SiteSetting::get('insights_reactions_enabled', '1') === '1',
+            'insights_comments_enabled' => SiteSetting::get('insights_comments_enabled', '0') === '1',
+
             // Security
             'spam_blocked_words' => SiteSetting::get('spam_blocked_words', ''),
             'spam_blocked_domains' => SiteSetting::get('spam_blocked_domains', ''),
@@ -393,13 +397,13 @@ class WebsiteSettings extends Page implements HasForms
                                 Forms\Components\TextInput::make('seo_title')
                                     ->label('Default Meta Title')
                                     ->live(onBlur: true)
-                                    ->helperText(fn ($state) => strlen($state ?? '') . ' / 60 characters — longer titles may be truncated in Google'),
+                                    ->helperText(fn ($state) => strlen($state ?? '') . ' / 60 characters. Longer titles may be truncated in Google.'),
 
                                 Forms\Components\Textarea::make('seo_description')
                                     ->label('Default Meta Description')
                                     ->rows(3)
                                     ->live(onBlur: true)
-                                    ->helperText(fn ($state) => strlen($state ?? '') . ' / 160 characters — longer descriptions may be truncated'),
+                                    ->helperText(fn ($state) => strlen($state ?? '') . ' / 160 characters. Longer descriptions may be truncated.'),
 
                                 Forms\Components\FileUpload::make('seo_og_image')
                                     ->label('Default OG Image')
@@ -417,6 +421,23 @@ class WebsiteSettings extends Page implements HasForms
                                     ->label('Google Analytics Measurement ID')
                                     ->placeholder('G-XXXXXXXXXX')
                                     ->helperText('GA4 Measurement ID'),
+                            ]),
+
+                        // News & Insights Tab
+                        Forms\Components\Tabs\Tab::make('News & Insights')
+                            ->icon('heroicon-o-newspaper')
+                            ->schema([
+                                Forms\Components\Section::make('Reader engagement')
+                                    ->description('Switch reader features on or off for every article. Each article can also turn comments off on its own.')
+                                    ->schema([
+                                        Forms\Components\Toggle::make('insights_reactions_enabled')
+                                            ->label('Show reactions')
+                                            ->helperText('Like, Insightful and Inspiring buttons under each article.'),
+
+                                        Forms\Components\Toggle::make('insights_comments_enabled')
+                                            ->label('Allow comments')
+                                            ->helperText('Comments are held for approval under Form Submissions > Article Comments. Keep this off until the team is ready to moderate.'),
+                                    ]),
                             ]),
 
                         // Security Tab
@@ -525,6 +546,10 @@ class WebsiteSettings extends Page implements HasForms
         $saveFile('seo_og_image', $data['seo_og_image'] ?? null, 'image', 'seo');
         SiteSetting::set('google_search_console', $data['google_search_console'] ?? '', 'text', 'seo');
         SiteSetting::set('google_analytics_id', $data['google_analytics_id'] ?? '', 'text', 'seo');
+
+        // News & Insights
+        SiteSetting::set('insights_reactions_enabled', ! empty($data['insights_reactions_enabled']) ? '1' : '0', 'boolean', 'insights');
+        SiteSetting::set('insights_comments_enabled', ! empty($data['insights_comments_enabled']) ? '1' : '0', 'boolean', 'insights');
 
         // Security
         SiteSetting::set('spam_blocked_words', $data['spam_blocked_words'] ?? '', 'textarea', 'security');

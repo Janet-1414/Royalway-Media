@@ -117,6 +117,18 @@ class ProjectResource extends Resource
                                             ->columnSpanFull(),
                                     ]),
 
+                                Forms\Components\Section::make('Communication assets')
+                                    ->schema([
+                                        Forms\Components\Select::make('communicationAssets')
+                                            ->label('Communication assets')
+                                            ->relationship('communicationAssets', 'title')
+                                            ->multiple()
+                                            ->preload()
+                                            ->searchable()
+                                            ->helperText('Shown as Campaign materials on the project page (up to 6).')
+                                            ->columnSpanFull(),
+                                    ]),
+
                                 Forms\Components\Section::make('Publishing')
                                     ->schema([
                                         Forms\Components\Toggle::make('is_featured')
@@ -308,13 +320,13 @@ class ProjectResource extends Resource
                                         Forms\Components\TextInput::make('meta_title')
                                             ->label('Meta Title')
                                             ->live(onBlur: true)
-                                            ->helperText(fn ($state) => strlen($state ?? '') . ' / 60 characters — longer titles may be truncated in Google'),
+                                            ->helperText(fn ($state) => strlen($state ?? '') . ' / 60 characters. Longer titles may be truncated in Google.'),
 
                                         Forms\Components\Textarea::make('meta_description')
                                             ->label('Meta Description')
                                             ->rows(2)
                                             ->live(onBlur: true)
-                                            ->helperText(fn ($state) => strlen($state ?? '') . ' / 160 characters — longer descriptions may be truncated'),
+                                            ->helperText(fn ($state) => strlen($state ?? '') . ' / 160 characters. Longer descriptions may be truncated.'),
                                     ]),
                             ]),
                     ])

@@ -63,6 +63,13 @@ class ProjectController extends Controller
             ->limit(3)
             ->get();
 
-        return view('projects.show', compact('project', 'relatedProjects'));
+        // Campaign materials: published communication assets linked to this project
+        $campaignAssets = $project->communicationAssets()
+            ->where('is_published', true)
+            ->latest('published_at')
+            ->latest('resources.id')
+            ->get();
+
+        return view('projects.show', compact('project', 'relatedProjects', 'campaignAssets'));
     }
 }

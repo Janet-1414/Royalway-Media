@@ -71,6 +71,11 @@ class Project extends Model
         return $this->belongsToMany(Service::class);
     }
 
+    public function communicationAssets()
+    {
+        return $this->belongsToMany(Resource::class)->where('type', 'communication_asset');
+    }
+
     /**
      * Boot method to auto-generate slug
      */

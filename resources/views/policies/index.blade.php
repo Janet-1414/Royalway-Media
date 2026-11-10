@@ -6,21 +6,20 @@
 
 @section('content')
 
-    <!-- Page Header -->
-
-    <section class="page-header-section">
-        <div class="container">
-            <div class="row">
-                <div class="col-12 text-center">
-                    <h1 class="text-white">Our Policies</h1>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Hero (editable under Content Management > Page Heroes) -->
+    @include('partials.page-hero', [
+        'hero' => $hero,
+        'eyebrow' => 'Our Policies',
+        'icon' => 'fa-shield-halved',
+        'actions' => [
+            ['label' => 'Read our policies', 'url' => '#policies'],
+            ['label' => 'Ask a question', 'url' => route('contact.index'), 'style' => 'ghost'],
+        ],
+    ])
 
     <!-- Policies List Section -->
 
-    <section class="policies-section py-5">
+    <section class="policies-section py-5" id="policies">
         <div class="container">
             <div class="row mb-4">
                 <div class="col-12">

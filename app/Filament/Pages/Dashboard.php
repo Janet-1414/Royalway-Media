@@ -17,6 +17,7 @@ class Dashboard extends BaseDashboard
             \App\Filament\Widgets\StatsOverviewWidget::class,
             \App\Filament\Widgets\RecentSubmissionsWidget::class,
             \App\Filament\Widgets\RecentEventBriefsWidget::class,
+            \App\Filament\Widgets\ResourceViewsWidget::class,
         ];
     }
 }

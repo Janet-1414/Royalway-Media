@@ -410,6 +410,31 @@
         @endpush
     @endif
 
+    <!-- Campaign materials -->
+    @if($campaignAssets->count())
+        <section class="ca-materials">
+            <div class="container">
+                <div class="ca-materials-head">
+                    <div>
+                        <span class="pj-label">Campaign materials</span>
+                        <h2 class="pj-h2">Materials from this campaign</h2>
+                    </div>
+                    <a href="{{ route('assets.index', ['project' => $project->slug]) }}#assets" class="cta-link">
+                        View all materials <i class="fas fa-arrow-right ms-2" aria-hidden="true"></i>
+                    </a>
+                </div>
+                <div class="row g-3 g-lg-4 mt-1">
+                    @foreach($campaignAssets->take(6) as $asset)
+                        <div class="col-lg-4 col-md-6 col-12">
+                            @include('partials.asset-card', ['asset' => $asset, 'compact' => true])
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+        @include('partials.asset-preview-modal')
+    @endif
+
     <!-- More projects -->
     @if($relatedProjects->count() > 0)
         <section class="pj-related">

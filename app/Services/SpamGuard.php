@@ -153,7 +153,11 @@ class SpamGuard
             }
 
             // Check action matches
-            $expectedAction = $this->formType === 'contact' ? 'contact' : 'event_brief';
+            $expectedAction = match ($this->formType) {
+                'contact' => 'contact',
+                'comment' => 'comment',
+                default => 'event_brief',
+            };
             if (($data['action'] ?? '') !== $expectedAction) {
                 return true;
             }

@@ -33,8 +33,18 @@
                 <li class="nav-item mx-2">
                     <a href="{{ route('projects.index') }}" class="nav-link ps-2 d-flex cursor-pointer {{ request()->routeIs('projects.*') ? 'active' : '' }}">Projects</a>
                 </li>
-                <li class="nav-item mx-2">
-                    <a href="{{ route('resources.index') }}" class="nav-link ps-2 d-flex cursor-pointer {{ request()->routeIs('resources.*') ? 'active' : '' }}">Resources</a>
+                @php
+                    $resourcesActive = request()->routeIs('insights.*', 'assets.*', 'policies.*', 'resources.*');
+                @endphp
+                <li class="nav-item dropdown" id="resources-dropdown">
+                    <a class="nav-link dropdown-toggle {{ $resourcesActive ? 'active' : '' }}" href="{{ route('insights.index') }}" role="button">
+                        Resources
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ route('insights.index') }}">News &amp; Insights</a></li>
+                        <li><a class="dropdown-item" href="{{ route('assets.index') }}">Communication Assets</a></li>
+                        <li><a class="dropdown-item" href="{{ route('policies.index') }}">Policies</a></li>
+                    </ul>
                 </li>
                 <li class="nav-item mx-2">
                     <a href="{{ route('contact.index') }}" class="nav-link ps-2 d-flex cursor-pointer {{ request()->routeIs('contact.*') ? 'active' : '' }}">Contact</a>
@@ -50,17 +60,19 @@
 </nav>
 <script>
     (function () {
-        var toggle = document.querySelector('#services-dropdown > .dropdown-toggle');
-        var menu = document.querySelector('#services-dropdown > .dropdown-menu');
-        if (!toggle || !menu) return;
         var mobile = window.matchMedia('(max-width: 991.98px)');
-        toggle.setAttribute('aria-expanded', 'false');
-        toggle.addEventListener('click', function (e) {
-            if (!mobile.matches) return;
-            e.preventDefault();
-            e.stopPropagation();
-            var open = menu.classList.toggle('show');
-            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        ['services-dropdown', 'resources-dropdown'].forEach(function (id) {
+            var toggle = document.querySelector('#' + id + ' > .dropdown-toggle');
+            var menu = document.querySelector('#' + id + ' > .dropdown-menu');
+            if (!toggle || !menu) return;
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.addEventListener('click', function (e) {
+                if (!mobile.matches) return;
+                e.preventDefault();
+                e.stopPropagation();
+                var open = menu.classList.toggle('show');
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
         });
     })();
 </script>

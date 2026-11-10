@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PageHero;
 use App\Models\Policy;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,9 @@ class PolicyController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(12);
 
-        return view('policies.index', compact('policies'));
+        $hero = PageHero::forKey('policies');
+
+        return view('policies.index', compact('policies', 'hero'));
     }
 
     public function show($slug)

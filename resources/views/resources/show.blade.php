@@ -1,234 +1,384 @@
 @extends('layouts.app')
 
-@section('title', $resource->title . ' - RoyalWay Media')
+@php
+    $isArticle = $resource->type === 'blog';
+    $listUrl = $isArticle ? route('insights.index') : route('assets.index');
+    $listLabel = $isArticle ? 'News & Insights' : 'Communication Assets';
+    $shareUrl = route('resources.show', $resource->slug);
+    $description = $resource->meta_description
+        ?: ($resource->excerpt ?: Str::limit(trim(strip_tags(html_entity_decode((string) $resource->content))), 160));
+    $coverUrl = $resource->show_cover ? $resource->image_url : null;
+    $hasContent = filled(trim(strip_tags((string) $resource->content)));
+    $enc = fn ($v) => rawurlencode($v);
+@endphp
+
+@section('title', ($resource->meta_title ?: $resource->title) . ' - RoyalWay Media')
+@section('seo_description', $description)
+@section('og_type', 'article')
+@if($resource->image_url)
+    @section('seo_image', $resource->image_url)
+@endif
+
+@push('meta')
+    @if($resource->published_at)
+        <meta property="article:published_time" content="{{ $resource->published_at->toDateString() }}">
+    @endif
+    @if($resource->topic)
+        <meta property="article:section" content="{{ $resource->topic }}">
+    @endif
+    @if($hasContent)
+        <meta name="twitter:label1" content="Reading time">
+        <meta name="twitter:data1" content="{{ $resource->reading_time }} min read">
+    @endif
+@endpush
 
 @section('content')
 
-    <!-- Page Header -->
-    <section class="page-header-section">
-        <div class="container">
-            <div class="row">
-                <div class="col-12 text-center">
-                    <h1 class="text-white">{{ $resource->title }}</h1>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Resource Content Section -->
-    <section class="resource-content-section py-5">
-        <div class="container">
-            <div class="row g-5">
-                <!-- Main Content -->
-                <div class="col-lg-8 col-12">
-                    @if($resource->show_cover && $resource->image_url)
-                        <div class="mb-4">
-                            <img src="{{ $resource->image_url }}"
-                                 alt="{{ $resource->title }}"
-                                 class="img-fluid rounded">
-                        </div>
+    <article class="na-article">
+        <header class="na-article-head">
+            <div class="container">
+                <div class="na-read">
+                    <nav class="na-crumbs" aria-label="Breadcrumb">
+                        <a href="{{ $listUrl }}">{{ $listLabel }}</a>
+                    </nav>
+                    <span class="na-topic">{{ $resource->topic ?: ($isArticle ? 'Insight' : 'Communication asset') }}</span>
+                    <h1 class="na-article-title">{{ $resource->title }}</h1>
+                    @if($resource->excerpt)
+                        <p class="na-standfirst">{{ $resource->excerpt }}</p>
                     @endif
-
-                    <!-- Resource Meta Info -->
-                    <div class="d-flex flex-wrap gap-3 mb-4">
-                        @if($resource->category)
-                            <span class="badge bg-burgundy">{{ $resource->category }}</span>
+                    <p class="na-meta">
+                        @if($resource->author)
+                            <span>By {{ $resource->author }}</span>
                         @endif
                         @if($resource->published_at)
-                            <span class="text-muted">
-                                <i class="far fa-calendar me-2"></i>
-                                {{ $resource->published_at->format('F d, Y') }}
-                            </span>
+                            <time datetime="{{ $resource->published_at->toDateString() }}">{{ $resource->formatted_published_date }}</time>
                         @endif
-                        @if($resource->author)
-                            <span class="text-muted">
-                                <i class="far fa-user me-2"></i>
-                                {{ $resource->author }}
-                            </span>
+                        @if($hasContent)
+                            <span>{{ $resource->reading_time }} min read</span>
                         @endif
-                    </div>
-
-                    <!-- Resource Content -->
-                    <div class="resource-body">
-                        {!! $resource->content !!}
-                    </div>
-
-                    <!-- Download/Attachments -->
-                    @if($resource->attachments && count($resource->attachments) > 0)
-                        <div class="resource-attachments mt-5 p-4 bg-light rounded">
-                            <p class="fw-700 text-dark mb-3">Downloads & Attachments</p>
-                            <div class="list-group">
-                                @foreach($resource->attachments as $attachment)
-                                    <a href="{{ asset('storage/' . $attachment['file']) }}"
-                                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                                       download>
-                                        <div>
-                                            <i class="fas fa-file-download me-2"></i>
-                                            {{ $attachment['name'] ?? 'Download File' }}
-                                        </div>
-                                        <span class="badge bg-burgundy">
-                                            {{ $attachment['size'] ?? '' }}
-                                        </span>
-                                    </a>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-
-                    <!-- Tags -->
-                    @if($resource->tags)
-                        <div class="resource-tags mt-4">
-                            <p class="fw-700 text-dark mb-3">Tags:</p>
-                            <div class="d-flex flex-wrap gap-2">
-                                @foreach(explode(',', $resource->tags) as $tag)
-                                    <span class="badge bg-light text-dark border">{{ trim($tag) }}</span>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-                </div>
-
-                <!-- Sidebar -->
-                <div class="col-lg-4 col-12">
-                    <!-- Resource Details Card -->
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-body">
-                            <p class="fw-700 text-dark mb-3">Resource Details</p>
-
-                            @if($resource->category)
-                                <div class="mb-3">
-                                    <p class="fw-semibold text-dark-emphasis mb-1">Category</p>
-                                    <p class="text-muted mb-0">{{ $resource->category }}</p>
-                                </div>
-                            @endif
-
-                            @if($resource->type)
-                                <div class="mb-3">
-                                    <p class="fw-semibold text-dark-emphasis mb-1">Type</p>
-                                    <p class="text-muted mb-0">{{ $resource->type }}</p>
-                                </div>
-                            @endif
-
-                            @if($resource->published_at)
-                                <div class="mb-3">
-                                    <p class="fw-semibold text-dark-emphasis mb-1">Published</p>
-                                    <p class="text-muted mb-0">{{ $resource->published_at->format('M d, Y') }}</p>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Share Card -->
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-body">
-                            <p class="fw-700 text-dark mb-3">Share This Resource</p>
-                            <div class="d-flex gap-2">
-                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->url()) }}"
-                                   target="_blank"
-                                   class="btn btn-outline-primary btn-sm">
-                                    <i class="fa-brands res fa-facebook-f fa-lg"></i>
-                                </a>
-                                <a href="https://twitter.com/intent/tweet?url={{ urlencode(request()->url()) }}&text={{ urlencode($resource->title) }}"
-                                   target="_blank"
-                                   class="btn btn-outline-info btn-sm">
-                                    <i class="fa-brands res fa-x-twitter fa-lg"></i>
-                                </a>
-                                <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(request()->url()) }}&title={{ urlencode($resource->title) }}"
-                                   target="_blank"
-                                   class="btn btn-outline-primary btn-sm">
-                                    <i class="fa-brands res fa-linkedin-in fa-lg"></i>
-                                </a>
-                                <a href="mailto:?subject={{ urlencode($resource->title) }}&body={{ urlencode(request()->url()) }}"
-                                   class="btn btn-outline-secondary btn-sm">
-                                    <i class="fa res fa-envelope fa-lg"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Related Resources -->
-                    @if(isset($relatedResources) && $relatedResources->count() > 0)
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body">
-                                <p class="fw-700 text-dark mb-3">Related Resources</p>
-                                <div class="list-group list-group-flush">
-                                    @foreach($relatedResources as $related)
-                                        <a href="{{ route('resources.show', $related->slug) }}"
-                                           class="list-group-item list-group-item-action border-0 px-0">
-                                            <div class="d-flex align-items-start">
-                                                @if($related->show_cover && $related->image_url)
-                                                    <img src="{{ $related->image_url }}"
-                                                         alt="{{ $related->title }}"
-                                                         class="rounded me-3"
-                                                         style="width: 60px; height: 60px; object-fit: cover;">
-                                                @endif
-                                                <div>
-                                                    <p class="fw-semibold mb-1 text-dark">{{ Str::limit($related->title, 50) }}</p>
-                                                    <small class="text-muted">{{ $related->category }}</small>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    @endif
+                        @if(!$isArticle && $resource->file_badge)
+                            <span>{{ $resource->file_badge }} file</span>
+                        @endif
+                    </p>
                 </div>
             </div>
+        </header>
+
+        @if($coverUrl)
+            <div class="container">
+                <figure class="na-cover">
+                    <img src="{{ $coverUrl }}" alt="{{ $resource->title }}">
+                </figure>
+            </div>
+        @endif
+
+        <div class="container">
+            <div class="na-read">
+                @if($hasContent)
+                    <div class="na-body">
+                        {!! $resource->content !!}
+                    </div>
+                @endif
+
+                @if($resource->file_url)
+                    <div class="na-file">
+                        <span class="na-file-icon" aria-hidden="true"><i class="fas {{ $resource->file_icon }}"></i></span>
+                        <div class="na-file-text">
+                            <p class="na-file-title">{{ $isArticle ? 'Attached file' : 'Get this asset' }}</p>
+                            <p class="na-file-sub">{{ $resource->file_badge }} file</p>
+                        </div>
+                        <div class="na-file-actions">
+                            @if(!$isArticle && $resource->preview_kind !== 'none')
+                                <a href="{{ route('assets.index', ['preview' => $resource->slug]) }}" class="btn btn-outline-burgundy btn-sm mb-0">Preview</a>
+                            @endif
+                            <a href="{{ $resource->file_url }}" class="btn btn-burgundy btn-sm mb-0" download>
+                                <i class="fas fa-download me-1" aria-hidden="true"></i> Download
+                            </a>
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Share -->
+                <div class="na-share" role="group" aria-label="Share this {{ $isArticle ? 'article' : 'asset' }}">
+                    <span class="na-share-label">Share</span>
+                    <button type="button" class="na-share-btn na-share-copy" data-copy-link="{{ $shareUrl }}">
+                        <i class="fas fa-link" aria-hidden="true"></i><span>Copy link</span>
+                    </button>
+                    <a class="na-share-btn" href="https://www.linkedin.com/sharing/share-offsite/?url={{ $enc($shareUrl) }}" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+                        <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
+                    </a>
+                    <a class="na-share-btn" href="https://twitter.com/intent/tweet?url={{ $enc($shareUrl) }}&text={{ $enc($resource->title) }}" target="_blank" rel="noopener" aria-label="Share on X">
+                        <i class="fa-brands fa-x-twitter" aria-hidden="true"></i>
+                    </a>
+                    <a class="na-share-btn" href="https://www.facebook.com/sharer/sharer.php?u={{ $enc($shareUrl) }}" target="_blank" rel="noopener" aria-label="Share on Facebook">
+                        <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
+                    </a>
+                    <a class="na-share-btn" href="https://wa.me/?text={{ $enc($resource->title . ' ' . $shareUrl) }}" target="_blank" rel="noopener" aria-label="Share on WhatsApp">
+                        <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                    </a>
+                    <a class="na-share-btn" href="mailto:?subject={{ $enc($resource->title) }}&body={{ $enc($description . "\n\n" . $shareUrl) }}" aria-label="Share by email">
+                        <i class="fas fa-envelope" aria-hidden="true"></i>
+                    </a>
+                    <button type="button" class="na-share-btn na-share-native" data-share-title="{{ $resource->title }}" data-share-url="{{ $shareUrl }}" hidden>
+                        <i class="fas fa-share-nodes" aria-hidden="true"></i><span>Share</span>
+                    </button>
+                    <span class="na-copied" role="status" aria-live="polite"></span>
+                </div>
+
+                <!-- Reactions -->
+                @if($reactionsEnabled)
+                    <section class="na-react" aria-labelledby="na-react-title"
+                             data-react-url="{{ route('resources.react', $resource->slug) }}"
+                             data-token="{{ csrf_token() }}">
+                        <h2 class="na-section-label" id="na-react-title">How did you find this?</h2>
+                        <div class="na-react-btns">
+                            @foreach(\App\Models\ResourceReaction::TYPES as $type => $meta)
+                                <button type="button" class="na-react-btn{{ $myReaction === $type ? ' is-active' : '' }}"
+                                        data-type="{{ $type }}" aria-pressed="{{ $myReaction === $type ? 'true' : 'false' }}">
+                                    <i class="fas {{ $meta['icon'] }}" aria-hidden="true"></i>
+                                    <span>{{ $meta['label'] }}</span>
+                                    <span class="na-react-count" data-count-for="{{ $type }}">{{ $reactionCounts[$type] ?? 0 }}</span>
+                                </button>
+                            @endforeach
+                        </div>
+                        <p class="na-react-msg" role="status" aria-live="polite"></p>
+                    </section>
+                @endif
+
+                <!-- Comments -->
+                @if($commentsEnabled)
+                    <section class="na-comments" id="comments" aria-labelledby="na-comments-title">
+                        <h2 class="na-section-label" id="na-comments-title">
+                            Comments @if($comments->count())<span class="na-count">{{ $comments->count() }}</span>@endif
+                        </h2>
+
+                        @forelse($comments as $comment)
+                            <div class="na-comment">
+                                <span class="na-avatar" aria-hidden="true">{{ Str::upper(Str::substr($comment->name, 0, 1)) }}</span>
+                                <div>
+                                    <p class="na-comment-meta">
+                                        <strong>{{ $comment->name }}</strong>
+                                        <time datetime="{{ $comment->created_at->toDateString() }}">{{ $comment->created_at->format('F d, Y') }}</time>
+                                    </p>
+                                    <div class="na-comment-body">{!! nl2br(e($comment->body)) !!}</div>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="na-muted">No comments yet. Be the first to share your thoughts.</p>
+                        @endforelse
+
+                        @if(session('comment_status'))
+                            <div class="alert alert-success text-white mt-4" role="status">{{ session('comment_status') }}</div>
+                        @endif
+
+                        <form class="na-comment-form" id="commentForm" action="{{ route('resources.comments.store', $resource->slug) }}" method="POST">
+                            @csrf
+                            {{-- Spam protection: honeypot (hidden from real users) --}}
+                            <div style="position: absolute; left: -9999px;" aria-hidden="true">
+                                <label for="website">Leave this empty</label>
+                                <input type="text" name="website" id="website" tabindex="-1" autocomplete="off">
+                            </div>
+                            <input type="hidden" name="form_started_at" value="{{ $formTimestamp }}">
+                            <input type="hidden" name="g-recaptcha-response" id="commentRecaptchaToken">
+
+                            <p class="na-form-title">Leave a comment</p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="comment-name" class="form-label">Name</label>
+                                    <input type="text" id="comment-name" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" maxlength="100" required autocomplete="name">
+                                    @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="comment-email" class="form-label">Email</label>
+                                    <input type="email" id="comment-email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}" maxlength="255" required autocomplete="email" aria-describedby="comment-note">
+                                    @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-12">
+                                    <label for="comment-body" class="form-label">Comment</label>
+                                    <textarea id="comment-body" name="body" rows="5" class="form-control @error('body') is-invalid @enderror" maxlength="3000" required>{{ old('body') }}</textarea>
+                                    @error('body')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-burgundy mt-3 mb-0">Post comment</button>
+                            <p class="na-note" id="comment-note">Your email will not be published. Comments are reviewed before they appear.</p>
+                            @if(config('services.recaptcha.site_key'))
+                                <p class="recaptcha-notice">
+                                    This site is protected by reCAPTCHA and the Google
+                                    <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a> and
+                                    <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms of Service</a> apply.
+                                </p>
+                            @endif
+                        </form>
+                    </section>
+                @endif
+            </div>
         </div>
-    </section>
+    </article>
+
+    <!-- Related -->
+    @if($relatedResources->count())
+        <section class="na-related">
+            <div class="container">
+                <span class="in-eyebrow">Keep reading</span>
+                <h2 class="section-heading">{{ $isArticle ? 'Related articles' : 'More communication assets' }}</h2>
+                <div class="row g-4 mt-1">
+                    @foreach($relatedResources as $related)
+                        @php
+                            $relUrl = route('resources.show', $related->slug);
+                        @endphp
+                        <div class="col-lg-4 col-md-6 col-12">
+                            <article class="in-card na-card">
+                                <a href="{{ $relUrl }}" class="in-card-img" tabindex="-1" aria-hidden="true">
+                                    @if($related->show_cover && $related->image_url)
+                                        <img src="{{ $related->image_url }}" alt="" loading="lazy">
+                                    @else
+                                        <span class="in-card-ph"><i class="fas {{ $isArticle ? 'fa-newspaper' : $related->file_icon }}"></i></span>
+                                    @endif
+                                </a>
+                                <div class="in-card-body">
+                                    @if($related->topic)
+                                        <span class="na-topic">{{ $related->topic }}</span>
+                                    @endif
+                                    <h3 class="in-card-title"><a href="{{ $relUrl }}">{{ $related->title }}</a></h3>
+                                    <p class="na-meta mt-auto">
+                                        @if($related->published_at)
+                                            <time datetime="{{ $related->published_at->toDateString() }}">{{ $related->formatted_published_date }}</time>
+                                        @endif
+                                        @if($isArticle && $related->content)
+                                            <span>{{ $related->reading_time }} min read</span>
+                                        @endif
+                                    </p>
+                                </div>
+                            </article>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
 
 @endsection
 
-@push('styles')
-    <style>
-        .resource-body {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: #555;
+@push('scripts')
+<script>
+(function () {
+    // Readership: one small beacon per page view, counted once per visitor per day
+    var viewUrl = @json(route('resources.view', $resource->slug));
+    try {
+        if (navigator.sendBeacon) {
+            navigator.sendBeacon(viewUrl);
+        } else {
+            fetch(viewUrl, { method: 'POST', keepalive: true, credentials: 'same-origin' });
         }
+    } catch (e) {}
 
-        .resource-body h2,
-        .resource-body h3,
-        .resource-body h4 {
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-            color: #1a1a1a;
-        }
+    // Copy link with a fallback for older browsers
+    var copyBtn = document.querySelector('.na-share-copy');
+    var copied = document.querySelector('.na-copied');
+    function showCopied(text) {
+        if (!copied) return;
+        copied.textContent = text;
+        copied.classList.add('is-visible');
+        clearTimeout(showCopied.t);
+        showCopied.t = setTimeout(function () { copied.classList.remove('is-visible'); copied.textContent = ''; }, 2500);
+    }
+    function fallbackCopy(text) {
+        var field = document.createElement('textarea');
+        field.value = text;
+        field.setAttribute('readonly', '');
+        field.style.position = 'fixed';
+        field.style.opacity = '0';
+        document.body.appendChild(field);
+        field.select();
+        var ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(field);
+        return ok;
+    }
+    if (copyBtn) {
+        copyBtn.addEventListener('click', function () {
+            var link = copyBtn.getAttribute('data-copy-link');
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(link).then(function () { showCopied('Copied'); }, function () {
+                    showCopied(fallbackCopy(link) ? 'Copied' : 'Press Ctrl+C to copy: ' + link);
+                });
+            } else {
+                showCopied(fallbackCopy(link) ? 'Copied' : 'Press Ctrl+C to copy: ' + link);
+            }
+        });
+    }
 
-        .resource-body p {
-            margin-bottom: 1.5rem;
-        }
+    // Native share sheet where supported
+    var nativeBtn = document.querySelector('.na-share-native');
+    if (nativeBtn && navigator.share) {
+        nativeBtn.hidden = false;
+        nativeBtn.addEventListener('click', function () {
+            navigator.share({
+                title: nativeBtn.getAttribute('data-share-title'),
+                url: nativeBtn.getAttribute('data-share-url')
+            }).catch(function () {});
+        });
+    }
 
-        .resource-body ul,
-        .resource-body ol {
-            margin-bottom: 1.5rem;
-            padding-left: 2rem;
+    // Reactions
+    var react = document.querySelector('.na-react');
+    if (react) {
+        var msg = react.querySelector('.na-react-msg');
+        var buttons = react.querySelectorAll('.na-react-btn');
+        var busy = false;
+        function render(data) {
+            Object.keys(data.counts || {}).forEach(function (type) {
+                var el = react.querySelector('[data-count-for="' + type + '"]');
+                if (el) el.textContent = data.counts[type];
+            });
+            buttons.forEach(function (btn) {
+                var on = btn.getAttribute('data-type') === data.current;
+                btn.classList.toggle('is-active', on);
+                btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+            });
         }
+        buttons.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                if (busy) return;
+                busy = true;
+                msg.textContent = '';
+                var body = new FormData();
+                body.append('type', btn.getAttribute('data-type'));
+                fetch(react.getAttribute('data-react-url'), {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'X-CSRF-TOKEN': react.getAttribute('data-token'), 'Accept': 'application/json' },
+                    body: body
+                }).then(function (res) {
+                    return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+                }).then(function (r) {
+                    if (r.data && r.data.counts) render(r.data);
+                    msg.textContent = r.ok ? (r.data.current ? 'Thanks for your reaction.' : 'Reaction removed.') : (r.data.message || 'Please try again in a moment.');
+                }).catch(function () {
+                    msg.textContent = 'Please try again in a moment.';
+                }).then(function () { busy = false; });
+            });
+        });
+    }
+})();
+</script>
 
-        .resource-body img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin: 2rem 0;
-        }
-
-        .resource-body blockquote {
-            border-left: 4px solid #8B0000;
-            padding-left: 1.5rem;
-            margin: 2rem 0;
-            font-style: italic;
-            color: #666;
-        }
-
-        /* Share buttons styling */
-        .btn i {
-            font-size: 1.25rem !important;
-            line-height: 1;
-        }
-
-        .res {
-            color: #38558a;
-        }
-    </style>
+@if($commentsEnabled && config('services.recaptcha.site_key'))
+<script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var form = document.getElementById('commentForm');
+    if (!form) return;
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        grecaptcha.ready(function () {
+            grecaptcha.execute('{{ config('services.recaptcha.site_key') }}', { action: 'comment' }).then(function (token) {
+                document.getElementById('commentRecaptchaToken').value = token;
+                form.submit();
+            });
+        });
+    });
+});
+</script>
+@endif
 @endpush

@@ -11,7 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // The readership beacon must work on cached pages with a stale token.
+        // It only counts a view, is throttled, and changes nothing else.
+        $middleware->validateCsrfTokens(except: [
+            'resources/*/view',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

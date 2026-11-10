@@ -76,22 +76,19 @@
                 <p class="text-yellow fw-700 mb-3">Quick Links</p>
                 <ul class="nav flex-column">
                     <li class="nav-item mb-2">
-                        <a class="nav-link text-white p-0" href="{{ route('resources.index') }}">Resources</a>
+                        <a class="nav-link text-white p-0" href="{{ route('assets.index') }}">Communication Assets</a>
                     </li>
                     <li class="nav-item mb-2">
-                        <a class="nav-link text-white p-0" href="{{ route('resources.index', ['type' => 'blog']) }}">Blog</a>
+                        <a class="nav-link text-white p-0" href="{{ route('insights.index') }}">News &amp; Insights</a>
                     </li>
                     <li class="nav-item mb-2">
                         <a class="nav-link text-white p-0" href="{{ route('policies.index') }}">Policies</a>
                     </li>
                     @if($companyProfileLink)
-                    <li class="nav-item mb-2">
+                    <li class="nav-item">
                         <a class="nav-link text-white p-0" href="{{ $companyProfileLink }}" target="_blank" rel="noopener">Company Profile</a>
                     </li>
                     @endif
-                    <li class="nav-item">
-                        <a class="nav-link text-white p-0" href="{{ route('resources.index', ['type' => 'publication']) }}">Publications</a>
-                    </li>
                 </ul>
             </div>
 

@@ -17,6 +17,9 @@
     {{-- SEO Meta Tags --}}
     @include('partials.seo-meta')
 
+    {{-- Extra page meta, for example article Open Graph tags --}}
+    @stack('meta')
+
     {{-- Favicon --}}
     @php
         $favicon = setting_file_url('favicon', asset('assets/img/fav.png'));

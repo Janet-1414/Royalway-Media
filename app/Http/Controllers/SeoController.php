@@ -24,7 +24,8 @@ class SeoController extends Controller
                 ['url' => route('about'), 'priority' => '0.8', 'changefreq' => 'monthly'],
                 ['url' => route('services.index'), 'priority' => '0.9', 'changefreq' => 'weekly'],
                 ['url' => route('projects.index'), 'priority' => '0.9', 'changefreq' => 'weekly'],
-                ['url' => route('resources.index'), 'priority' => '0.8', 'changefreq' => 'weekly'],
+                ['url' => route('insights.index'), 'priority' => '0.8', 'changefreq' => 'weekly'],
+                ['url' => route('assets.index'), 'priority' => '0.7', 'changefreq' => 'weekly'],
                 ['url' => route('contact.index'), 'priority' => '0.7', 'changefreq' => 'monthly'],
                 ['url' => route('event-brief.index'), 'priority' => '0.6', 'changefreq' => 'monthly'],
                 ['url' => route('policies.index'), 'priority' => '0.4', 'changefreq' => 'yearly'],
@@ -54,8 +55,8 @@ class SeoController extends Controller
                 ];
             });
 
-            // Resources
-            Resource::published()->latest('published_at')->get()->each(function ($resource) use (&$urls) {
+            // News & Insights articles (publication and other types are not public)
+            Resource::published()->blogs()->latest('published_at')->get()->each(function ($resource) use (&$urls) {
                 $urls[] = [
                     'url' => route('resources.show', $resource->slug),
                     'lastmod' => $resource->updated_at->toW3cString(),
