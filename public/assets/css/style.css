@@ -4707,3 +4707,78 @@ nav.navbar {
     .ca-modal-title { white-space: normal; }
     .ca-modal-body iframe { height: 70vh; }
 }
+/* Share buttons — brand colours */
+.na-share-btn {
+    transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+
+.na-share-copy,
+.na-share-native {
+    color: #38558A;
+    border-color: rgba(56, 85, 138, .35);
+}
+.na-share-copy:hover,
+.na-share-native:hover {
+    background-color: #38558A;
+    border-color: #38558A;
+    color: #fff;
+}
+
+.na-share-btn[href*="linkedin.com"] {
+    color: #0A66C2;
+    border-color: rgba(10, 102, 194, .35);
+}
+.na-share-btn[href*="linkedin.com"]:hover {
+    background-color: #0A66C2;
+    border-color: #0A66C2;
+    color: #fff;
+}
+
+.na-share-btn[href*="twitter.com"] {
+    color: #000;
+    border-color: rgba(0, 0, 0, .3);
+}
+.na-share-btn[href*="twitter.com"]:hover {
+    background-color: #000;
+    border-color: #000;
+    color: #fff;
+}
+
+.na-share-btn[href*="facebook.com"] {
+    color: #1877F2;
+    border-color: rgba(24, 119, 242, .35);
+}
+.na-share-btn[href*="facebook.com"]:hover {
+    background-color: #1877F2;
+    border-color: #1877F2;
+    color: #fff;
+}
+
+.na-share-btn[href*="wa.me"] {
+    color: #25D366;
+    border-color: rgba(37, 211, 102, .4);
+}
+.na-share-btn[href*="wa.me"]:hover {
+    background-color: #25D366;
+    border-color: #25D366;
+    color: #fff;
+}
+
+.na-share-btn[href^="mailto:"] {
+    color: #D93025;
+    border-color: rgba(217, 48, 37, .35);
+}
+.na-share-btn[href^="mailto:"]:hover {
+    background-color: #D93025;
+    border-color: #D93025;
+    color: #fff;
+}
+/* Share icons must take the button's colour, not their own */
+.na-share-btn i,
+.na-share-btn .fa-brands,
+.na-share-btn .fab,
+.na-share-btn .fas,
+.na-share-btn svg {
+    color: inherit !important;
+    fill: currentColor;
+}
