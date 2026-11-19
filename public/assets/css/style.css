@@ -3080,25 +3080,21 @@ nav.navbar {
 .pj-text a { color: #38558A; }
 
 .pj-challenge {
-    background: #F2F6FF;
+    background: var(--rw-tint-strong);
     border-left: 3px solid #38558A;
     border-radius: 0.9rem;
-    padding: 1.25rem 1.5rem;
-    margin: 2rem 0;
-}
-
-.pj-challenge-label {
-    display: block;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #38558A;
-    margin-bottom: 0.5rem;
+    padding: 1.75rem 2rem;
+    margin: 2.5rem 0;
 }
 
 .pj-challenge-body { color: #1B1F2A; font-weight: 500; line-height: 1.65; }
 .pj-challenge-body > :last-child { margin-bottom: 0; }
+/* Darker than the default story grey so long challenge text keeps its contrast on the tint */
+.pj-challenge .pj-text { color: #495057; }
+
+/* Heading above the numbered story blocks, set apart from the tinted challenge by white space */
+.pj-approach-h2 { margin-top: 3rem; }
+.pj-approach-h2 + .pj-timeline { margin-top: 1.5rem; }
 
 /* Timeline */
 .pj-timeline { list-style: none; margin: 2rem 0 0; padding: 0; }
@@ -3541,6 +3537,8 @@ nav.navbar {
     .pj-stat { padding: 0.9rem; }
     .pj-stat:last-child:nth-child(odd) { grid-column: span 2; }
     .pj-main { padding-top: 2.5rem; }
+    .pj-challenge { padding: 1.4rem 1.25rem; }
+    .pj-approach-h2 { margin-top: 2.5rem; }
     .pj-outcome { padding: 2rem 1.4rem; }
     .pj-delivered { padding: 3rem 0; }
     .pj-gallery, .pj-related { padding-top: 3rem; }
@@ -3555,8 +3553,6 @@ nav.navbar {
     .pj-gal-2 .pj-gal-item:nth-child(2) { grid-row: auto; }
     .pj-gal-4 .pj-gal-item:nth-child(4) { grid-column: auto; }
 }
-/* Project page: long challenge text shown as plain story */
-.pj-story { margin-top: 1.5rem; }
 .pj-text h2, .pj-text h3 { font-size: 1.25rem; font-weight: 700; color: #1B1F2A; margin: 1.5rem 0 0.6rem; }
 
 /* ========================================

@@ -139,16 +139,19 @@
                         <div class="pj-text">{!! nl2br(e($project->description)) !!}</div>
                     @endif
 
-                    @if($challenge && $challengeShort)
+                    @if($challenge)
                         <div class="pj-challenge">
-                            <span class="pj-challenge-label">The challenge</span>
-                            <div class="pj-challenge-body">{!! $challenge !!}</div>
+                            <h2 class="pj-h2">Challenge</h2>
+                            @if($challengeShort)
+                                <div class="pj-challenge-body">{!! $challenge !!}</div>
+                            @else
+                                <div class="pj-text">{!! $challenge !!}</div>
+                            @endif
                         </div>
-                    @elseif($challenge)
-                        <div class="pj-text pj-story">{!! $challenge !!}</div>
                     @endif
 
                     @if($narrative->count())
+                        <h2 class="pj-h2 pj-approach-h2">Our Approach</h2>
                         <ol class="pj-timeline">
                             @foreach($narrative as $i => $block)
                                 <li>
