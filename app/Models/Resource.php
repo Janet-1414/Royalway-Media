@@ -96,6 +96,19 @@ class Resource extends Model
         'audio/mpeg',
     ];
 
+    /**
+     * Document formats accepted for a Communication Asset: pdf, doc, docx, ppt, pptx, xls, xlsx
+     */
+    public const DOCUMENT_MIME_TYPES = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ];
+
     public function projects()
     {
         return $this->belongsToMany(Project::class);
@@ -316,6 +329,16 @@ class Resource extends Model
             'txt' => 'fa-file-lines',
             default => 'fa-file',
         };
+    }
+
+    /**
+     * Badge colour modifier for a topic (na-topic--0/1/2), stable for the same topic name
+     */
+    public static function topicTone(?string $topic): string
+    {
+        $topic = mb_strtolower(trim((string) $topic));
+
+        return 'na-topic--' . ($topic === '' ? 0 : crc32($topic) % 3);
     }
 
     /**

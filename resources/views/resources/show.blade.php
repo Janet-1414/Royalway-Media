@@ -35,13 +35,13 @@
 @section('content')
 
     <article class="na-article">
-        <header class="na-article-head">
+        <header class="na-article-head section-tint">
             <div class="container">
                 <div class="na-read">
                     <nav class="na-crumbs" aria-label="Breadcrumb">
                         <a href="{{ $listUrl }}">{{ $listLabel }}</a>
                     </nav>
-                    <span class="na-topic">{{ $resource->topic ?: ($isArticle ? 'Insight' : 'Communication asset') }}</span>
+                    <span class="na-topic {{ \App\Models\Resource::topicTone($resource->topic) }}">{{ $resource->topic ?: ($isArticle ? 'Insight' : 'Communication asset') }}</span>
                     <h1 class="na-article-title">{{ $resource->title }}</h1>
                     @if($resource->excerpt)
                         <p class="na-standfirst">{{ $resource->excerpt }}</p>
@@ -237,7 +237,7 @@
                                 </a>
                                 <div class="in-card-body">
                                     @if($related->topic)
-                                        <span class="na-topic">{{ $related->topic }}</span>
+                                        <span class="na-topic {{ \App\Models\Resource::topicTone($related->topic) }}">{{ $related->topic }}</span>
                                     @endif
                                     <h3 class="in-card-title"><a href="{{ $relUrl }}">{{ $related->title }}</a></h3>
                                     <p class="na-meta mt-auto">

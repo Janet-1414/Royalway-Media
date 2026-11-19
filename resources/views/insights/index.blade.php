@@ -42,7 +42,7 @@
                                 @endif
                             </a>
                             <div class="na-lead-body">
-                                <span class="na-topic">{{ $lead->topic ?: 'Featured' }}</span>
+                                <span class="na-topic {{ \App\Models\Resource::topicTone($lead->topic) }}">{{ $lead->topic ?: 'Featured' }}</span>
                                 <h2 class="na-lead-title" id="na-lead-title"><a href="{{ $postUrl($lead) }}">{{ $lead->title }}</a></h2>
                                 @if($lead->excerpt)
                                     <p class="na-lead-text">{{ Str::limit($lead->excerpt, 220) }}</p>
@@ -76,7 +76,7 @@
                                                 </span>
                                                 <span class="na-headline-body">
                                                     @if($item->topic)
-                                                        <span class="na-topic">{{ $item->topic }}</span>
+                                                        <span class="na-topic {{ \App\Models\Resource::topicTone($item->topic) }}">{{ $item->topic }}</span>
                                                     @endif
                                                     <span class="na-headline-title">{{ $item->title }}</span>
                                                     @if($item->published_at)
@@ -96,7 +96,7 @@
     @endif
 
     <!-- All articles -->
-    <section class="in-section na-browse" id="posts">
+    <section class="in-section na-browse section-tint" id="posts">
         <div class="container">
             <div class="na-browse-head">
                 <div>
@@ -151,7 +151,7 @@
                             </a>
                             <div class="in-card-body">
                                 @if($post->topic)
-                                    <span class="na-topic">{{ $post->topic }}</span>
+                                    <span class="na-topic {{ \App\Models\Resource::topicTone($post->topic) }}">{{ $post->topic }}</span>
                                 @endif
                                 <h3 class="in-card-title"><a href="{{ $url }}">{{ $post->title }}</a></h3>
                                 <p class="na-meta mt-auto">

@@ -291,26 +291,31 @@ class ProjectResource extends Resource
                                     ])
                                     ->columns(2),
 
-                                Forms\Components\Section::make('Downloads & Links')
+                                Forms\Components\Section::make('Project Videos')
+                                    ->description('YouTube, Vimeo, Facebook, Dailymotion or a direct .mp4 / .webm link. Other links show as a plain "Watch video" link.')
                                     ->schema([
-                                        Forms\Components\TextInput::make('report_url')
-                                            ->label('Full Report URL')
-                                            ->url()
-                                            ->placeholder('https://...'),
-
-                                        Forms\Components\FileUpload::make('summary_pdf')
-                                            ->label('Summary PDF')
-                                            ->disk('public')
-                                            ->acceptedFileTypes(['application/pdf'])
-                                            ->directory('projects/summaries'),
-
-                                        Forms\Components\FileUpload::make('download_link')
-                                            ->label('Legacy Download (PDF)')
-                                            ->disk('public')
-                                            ->acceptedFileTypes(['application/pdf'])
-                                            ->directory('projects/downloads'),
-                                    ])
-                                    ->columns(2),
+                                        Forms\Components\Repeater::make('videos')
+                                            ->hiddenLabel()
+                                            ->schema([
+                                                Forms\Components\TextInput::make('title')
+                                                    ->label('Title')
+                                                    ->maxLength(255)
+                                                    ->placeholder('Optional'),
+                                                Forms\Components\TextInput::make('url')
+                                                    ->label('Video URL')
+                                                    ->required()
+                                                    ->url()
+                                                    ->maxLength(2048)
+                                                    ->placeholder('https://www.youtube.com/watch?v=...'),
+                                            ])
+                                            ->columns(2)
+                                            ->defaultItems(0)
+                                            ->reorderable()
+                                            ->collapsible()
+                                            ->itemLabel(fn (array $state): ?string => ($state['title'] ?? null) ?: ($state['url'] ?? null))
+                                            ->addActionLabel('Add video')
+                                            ->columnSpanFull(),
+                                    ]),
                             ]),
 
                         Forms\Components\Tabs\Tab::make('SEO')

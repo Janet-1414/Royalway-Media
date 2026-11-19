@@ -54,6 +54,18 @@ class PolicyResource extends Resource
                     ])
                     ->columns(2),
 
+                Forms\Components\Section::make('Hero')
+                    ->schema([
+                        Forms\Components\FileUpload::make('hero_image')
+                            ->label('Hero background image')
+                            ->image()
+                            ->disk('public')
+                            ->directory('policies/hero')
+                            ->imageEditor()
+                            ->imageEditorAspectRatios(['16:9', '21:9'])
+                            ->helperText('Wide image shown behind the policy title with a dark overlay. Leave empty to use the default banner image.'),
+                    ]),
+
                 Forms\Components\Section::make('Policy Content')
                     ->schema([
                         Forms\Components\RichEditor::make('content')

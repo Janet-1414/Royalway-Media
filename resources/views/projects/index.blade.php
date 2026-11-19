@@ -55,7 +55,7 @@
 
     <!-- Projects Grid -->
 
-    <section class="projects-grid-section py-5">
+    <section class="projects-grid-section section-tint py-5">
         <div class="container">
             <div class="row g-4">
                 @forelse($projects as $project)

@@ -25,12 +25,21 @@
 
     $challenge = $isBlank($project->challenge) ? null : $project->challenge;
 
+    // The Challenge field is always shown, so edits to it appear on the page. Older projects had
+    // Story Blocks copied out of the challenge, so a block whose heading is already a heading
+    // inside the challenge is skipped instead of hiding the challenge
+    $plain = fn ($html) => mb_strtolower(trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags((string) $html), ENT_QUOTES | ENT_HTML5))));
+    $challengeHeadings = [];
+    if ($challenge && preg_match_all('/<(h[1-6]|strong|b)\b[^>]*>(.*?)<\/\1>/is', $challenge, $hm)) {
+        $challengeHeadings = array_filter(array_map(fn ($h) => trim($plain($h), " :"), $hm[2]));
+    }
+
     $narrative = collect($project->narrative_blocks ?? [])
-        ->filter(fn ($b) => filled($b['heading'] ?? null))
+        ->filter(fn ($b) => is_array($b) && filled($b['heading'] ?? null))
+        ->reject(fn ($b) => in_array(trim($plain($b['heading']), " :"), $challengeHeadings, true))
         ->values();
 
-    // A short, plain challenge is shown as a callout box. A long one (headings or lists inside)
-    // is the full story, so it is hidden when Story Blocks exist to avoid showing it twice
+    // A short, plain challenge is shown as a callout box, a long one as story text
     $challengeShort = $challenge
         && mb_strlen(trim(strip_tags($challenge))) <= 450
         && ! preg_match('/<(h[1-6]|ul|ol)\b/i', $challenge);
@@ -41,8 +50,7 @@
         ->values();
 
     $services = $project->services ?? collect();
-    $summaryFile = $project->summary_pdf ?: $project->download_link;
-    $hasDownloads = $project->report_url || $summaryFile;
+    $videos = $project->video_items;
 
     $gallery = array_values(array_filter((array) ($project->gallery ?? [])));
     $gCount = count($gallery);
@@ -136,7 +144,7 @@
                             <span class="pj-challenge-label">The challenge</span>
                             <div class="pj-challenge-body">{!! $challenge !!}</div>
                         </div>
-                    @elseif($challenge && $narrative->isEmpty())
+                    @elseif($challenge)
                         <div class="pj-text pj-story">{!! $challenge !!}</div>
                     @endif
 
@@ -166,29 +174,18 @@
                             </div>
                         @endif
 
-                        @if($hasDownloads)
-                            <div class="pj-card">
-                                <span class="pj-card-label">Downloads</span>
-                                @if($project->report_url)
-                                    <a href="{{ $project->report_url }}" class="pj-dl" target="_blank" rel="noopener">
-                                        <span>Full report</span>
-                                        <em>Open link <i class="fas fa-external-link-alt"></i></em>
-                                    </a>
-                                @endif
-                                @if($summaryFile)
-                                    <a href="{{ asset('storage/' . $summaryFile) }}" class="pj-dl" download>
-                                        <span>Summary PDF</span>
-                                        <em>Download <i class="fas fa-download"></i></em>
-                                    </a>
-                                @endif
-                            </div>
-                        @endif
-
                         <div class="pj-card">
                             @if(filled($project->client))
                                 <div class="pj-kv">
                                     <span>Client</span>
-                                    <b>{{ $project->client }}</b>
+                                    @if($logoOk)
+                                        <div class="pj-client">
+                                            <img src="{{ asset('storage/' . $project->client_logo) }}" alt="{{ $project->client }} logo" class="pj-client-logo" height="56" loading="lazy">
+                                            <b>{{ $project->client }}</b>
+                                        </div>
+                                    @else
+                                        <b>{{ $project->client }}</b>
+                                    @endif
                                 </div>
                             @endif
                             @if($project->category)
@@ -408,6 +405,49 @@
                 })();
             </script>
         @endpush
+    @endif
+
+    <!-- Project videos -->
+    @if(count($videos) > 0)
+        <section class="pj-videos">
+            <div class="container">
+                <span class="pj-label">Project videos</span>
+                <h2 class="pj-h2">Watch the work</h2>
+                <div class="row g-4 mt-1{{ count($videos) === 1 ? ' justify-content-center' : '' }}">
+                    @foreach($videos as $i => $video)
+                        @php $videoTitle = $video['title'] !== '' ? $video['title'] : $project->title . ' video ' . ($i + 1); @endphp
+                        <div class="{{ count($videos) === 1 ? 'col-lg-9' : 'col-md-6' }} col-12">
+                            <figure class="pj-video">
+                                @if($video['type'] === 'iframe')
+                                    <div class="ratio ratio-16x9 pj-video-frame">
+                                        <iframe src="{{ $video['src'] }}"
+                                                title="{{ $videoTitle }}"
+                                                loading="lazy"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                                                allowfullscreen></iframe>
+                                    </div>
+                                @elseif($video['type'] === 'video')
+                                    <div class="ratio ratio-16x9 pj-video-frame">
+                                        <video controls preload="metadata" title="{{ $videoTitle }}">
+                                            <source src="{{ $video['src'] }}" type="{{ $video['mime'] }}">
+                                            <a href="{{ $video['url'] }}" target="_blank" rel="noopener">Watch video</a>
+                                        </video>
+                                    </div>
+                                @else
+                                    <a href="{{ $video['url'] }}" class="pj-video-link" target="_blank" rel="noopener">
+                                        <i class="fas fa-play-circle" aria-hidden="true"></i>
+                                        <span>Watch video</span>
+                                    </a>
+                                @endif
+                                @if($video['title'] !== '')
+                                    <figcaption class="pj-video-title">{{ $video['title'] }}</figcaption>
+                                @endif
+                            </figure>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
     @endif
 
     <!-- Campaign materials -->

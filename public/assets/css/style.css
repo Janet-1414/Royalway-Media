@@ -1,6 +1,12 @@
 /* Font Faces */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
+/* Light tints shared across the site: --rw-tint-strong (#EAF1FF) for tinted sections, badges and panels, --rw-tint for cards on white */
+:root {
+    --rw-tint: #F4F7FD;
+    --rw-tint-strong: #EAF1FF;
+}
+
 body {
     font-family: 'Montserrat', sans-serif;
     font-weight: 400;
@@ -414,7 +420,7 @@ nav.navbar {
 .project-tag {
     display: inline-block;
     padding: 0.25rem 0.75rem;
-    background: #EAF1FF;
+    background: var(--rw-tint-strong);
     color: #38558A;
     border-radius: 5px;
     font-size: 0.75rem;
@@ -429,7 +435,7 @@ nav.navbar {
 
 /* Partners Section */
 .partners-section {
-    background: #f8f9fa;
+    background: var(--rw-tint-strong);
 }
 
 /* Responsive Styles */
@@ -476,7 +482,7 @@ nav.navbar {
     }
 }
 .badge.bg-light {
-    background: #EAF1FF !important;
+    background: var(--rw-tint-strong) !important;
     color: #38558A !important;
 }
 
@@ -503,7 +509,7 @@ nav.navbar {
 
 /* About Intro Section */
 .about-intro-section {
-    background: #f8f9fa;
+    background: var(--rw-tint-strong);
 }
 
 /* Mission Vision Section */
@@ -653,7 +659,7 @@ nav.navbar {
    ======================================== */
 
 .faq-section {
-    background: #f8f9fa;
+    background: var(--rw-tint-strong);
 }
 
 .faq-item {
@@ -770,7 +776,7 @@ nav.navbar {
 }
 
 .gallery-section {
-    background: #f8f9fa;
+    background: var(--rw-tint-strong);
 }
 
 .gallery-item {
@@ -1664,7 +1670,7 @@ nav.navbar {
 
 /* Results section */
 .project-results-section {
-    background: #f8f9fa;
+    background: var(--rw-tint-strong);
 }
 
 .results-card {
@@ -2093,7 +2099,7 @@ nav.navbar {
     align-items: center;
 }
 .dropdown-card:hover {
-    background: #EAF1FF;
+    background: var(--rw-tint-strong);
     border-color: #38558A;
 }
 .dropdown-card p {
@@ -2529,7 +2535,7 @@ nav.navbar {
     max-width: 860px;
     margin: 0 auto;
     text-align: center;
-    background: #EAF1FF;
+    background: var(--rw-tint-strong);
     border-radius: 1.25rem;
     padding: 2.5rem 2rem;
 }
@@ -2637,7 +2643,8 @@ nav.navbar {
 .ab-prose h3 { font-size: 1.25rem; margin: 1.5rem 0 0.75rem; color: #1B1F2A; }
 .ab-prose img { max-width: 100%; height: auto; border-radius: 0.75rem; }
 
-/* Photo collage (1, 2 or 3 photos) */
+/* Photo collage (1, 2 or 3 photos). Each photo sits whole inside a fixed frame with a
+   neutral backdrop, so portrait, landscape and square images are never cropped */
 .ab-collage {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -2646,11 +2653,16 @@ nav.navbar {
 }
 
 .ab-collage img {
+    display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    min-width: 0;
+    object-fit: contain;
+    object-position: center;
+    background: #EEF1F5;
+    border: 1px solid #E2E6EC;
     border-radius: 1rem;
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
 }
 
 .ab-collage-1 { grid-template-columns: 1fr; grid-auto-rows: 380px; }
@@ -2658,7 +2670,7 @@ nav.navbar {
 .ab-collage-3 img:first-child { grid-row: span 2; }
 
 @media (max-width: 575px) {
-    .ab-collage { grid-auto-rows: 150px; }
+    .ab-collage { grid-auto-rows: 170px; gap: 10px; }
     .ab-collage-1, .ab-collage-2 { grid-auto-rows: 260px; }
 }
 
@@ -2687,10 +2699,15 @@ nav.navbar {
 }
 
 /* Mission, vision, purpose */
+/* Whole image shown inside the 4:5 frame, whatever its ratio */
 .ab-mvp-img {
+    display: block;
     width: 100%;
     aspect-ratio: 4 / 5;
-    object-fit: cover;
+    object-fit: contain;
+    object-position: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 1.25rem;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
 }
@@ -3036,7 +3053,7 @@ nav.navbar {
 
 .pj-label {
     display: inline-block;
-    background: #EAF1FF;
+    background: var(--rw-tint-strong);
     color: #38558A;
     border-radius: 6px;
     padding: 0.3rem 0.7rem;
@@ -3186,7 +3203,7 @@ nav.navbar {
     flex: 0 0 18px;
     height: 18px;
     border-radius: 50%;
-    background: #EAF1FF;
+    background: var(--rw-tint-strong);
     color: #38558A;
     font-size: 0.55rem;
     display: inline-flex;
@@ -3308,7 +3325,7 @@ nav.navbar {
 
 /* What we delivered */
 .pj-delivered {
-    background: #F4F7FD;
+    background: var(--rw-tint-strong);
     padding: 4rem 0;
     margin-top: 2.5rem;
 }
@@ -3333,7 +3350,7 @@ nav.navbar {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: #EAF1FF;
+    background: var(--rw-tint-strong);
     color: #38558A;
     display: flex;
     align-items: center;
@@ -3508,7 +3525,7 @@ nav.navbar {
 }
 
 .pj-btn-white { background: #fff; color: #1B3A6D; }
-.pj-btn-white:hover { background: #EAF1FF; color: #1B3A6D; }
+.pj-btn-white:hover { background: var(--rw-tint-strong); color: #1B3A6D; }
 .pj-btn-ghost { border: 1px solid rgba(255, 255, 255, 0.55); color: #fff; }
 .pj-btn-ghost:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
 
@@ -3550,7 +3567,7 @@ nav.navbar {
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    background: #F4F7FD;
+    background: var(--rw-tint-strong);
     padding: 3rem 0;
 }
 
@@ -3568,7 +3585,7 @@ nav.navbar {
         bottom: -100vh;
         left: -4.5rem;
         right: -100vw;
-        background: #EAF1FF;
+        background: var(--rw-tint-strong);
     }
 }
 
@@ -3691,7 +3708,7 @@ nav.navbar {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: #F4F7FD;
+    background: var(--rw-tint);
     border-radius: 1rem;
     overflow: hidden;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -3783,7 +3800,7 @@ nav.navbar {
     text-align: center;
     color: #6c757d;
     padding: 3rem 1rem;
-    background: #F4F7FD;
+    background: var(--rw-tint);
     border-radius: 1rem;
 }
 
@@ -4129,7 +4146,7 @@ nav.navbar {
     transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 
-.na-chip:hover { background: #EAF1FF; border-color: #38558A; color: #1B3A6D; }
+.na-chip:hover { background: var(--rw-tint-strong); border-color: #38558A; color: #1B3A6D; }
 
 .na-chip.is-active {
     background: #38558A;
@@ -4239,7 +4256,7 @@ nav.navbar {
 
 .na-body blockquote {
     border-left: 4px solid #018DB1;
-    background: #F4F7FD;
+    background: var(--rw-tint);
     padding: 1rem 1.5rem;
     margin: 2rem 0;
     border-radius: 0 0.75rem 0.75rem 0;
@@ -4254,7 +4271,7 @@ nav.navbar {
     gap: 1rem;
     margin: 2rem 0;
     padding: 1.25rem 1.4rem;
-    background: #F4F7FD;
+    background: var(--rw-tint);
     border-radius: 1rem;
 }
 
@@ -4262,7 +4279,7 @@ nav.navbar {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: #EAF1FF;
+    background: var(--rw-tint-strong);
     color: #38558A;
     display: flex;
     align-items: center;
@@ -4361,7 +4378,7 @@ nav.navbar {
     transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
 
-.na-react-btn:hover { background: #EAF1FF; border-color: #38558A; }
+.na-react-btn:hover { background: var(--rw-tint-strong); border-color: #38558A; }
 
 .na-react-btn.is-active {
     background: #38558A;
@@ -4373,7 +4390,7 @@ nav.navbar {
     min-width: 1.6rem;
     padding: 0.05rem 0.45rem;
     border-radius: 999px;
-    background: #EAF1FF;
+    background: var(--rw-tint-strong);
     color: #1B3A6D;
     font-size: 0.75rem;
     text-align: center;
@@ -4394,7 +4411,7 @@ nav.navbar {
     margin-left: 0.4rem;
     padding: 0.05rem 0.55rem;
     border-radius: 999px;
-    background: #EAF1FF;
+    background: var(--rw-tint-strong);
     color: #38558A;
     letter-spacing: 0;
 }
@@ -4426,7 +4443,7 @@ nav.navbar {
 .na-comment-form {
     margin-top: 1.75rem;
     padding: 1.5rem;
-    background: #F4F7FD;
+    background: var(--rw-tint);
     border-radius: 1rem;
 }
 
@@ -4442,7 +4459,7 @@ nav.navbar {
 .na-note { margin: 0.75rem 0 0; font-size: 0.85rem; color: #67748e; }
 
 .na-related {
-    background: #F4F7FD;
+    background: var(--rw-tint-strong);
     padding: 4rem 0;
     margin-top: 3rem;
 }
@@ -4514,7 +4531,7 @@ nav.navbar {
     display: block;
     aspect-ratio: 4 / 3;
     overflow: hidden;
-    background: #EAF1FF;
+    background: var(--rw-tint-strong);
 }
 
 .ca-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -4594,7 +4611,7 @@ nav.navbar {
 .ca-btn:hover { background: #018DB1; border-color: #018DB1; color: #fff; }
 
 .ca-btn--ghost { background: #fff; color: #38558A; }
-.ca-btn--ghost:hover { background: #EAF1FF; border-color: #38558A; color: #1B3A6D; }
+.ca-btn--ghost:hover { background: var(--rw-tint-strong); border-color: #38558A; color: #1B3A6D; }
 
 .ca-card--compact .ca-thumb { aspect-ratio: 16 / 9; }
 
@@ -4658,13 +4675,13 @@ nav.navbar {
     height: 40px;
     border: 0;
     border-radius: 50%;
-    background: #F4F7FD;
+    background: var(--rw-tint);
     color: #1B1F2A;
     font-size: 1.1rem;
     cursor: pointer;
 }
 
-.ca-close:hover { background: #EAF1FF; color: #38558A; }
+.ca-close:hover { background: var(--rw-tint-strong); color: #38558A; }
 
 .ca-modal-body {
     flex: 1;
@@ -4672,7 +4689,7 @@ nav.navbar {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #F4F7FD;
+    background: var(--rw-tint);
     overflow: auto;
 }
 
@@ -4699,7 +4716,7 @@ nav.navbar {
     padding: 0.75rem 1.1rem;
     font-size: 0.85rem;
     color: #1B3A6D;
-    background: #EAF1FF;
+    background: var(--rw-tint-strong);
 }
 
 @media (max-width: 575px) {
@@ -4782,3 +4799,283 @@ nav.navbar {
     color: inherit !important;
     fill: currentColor;
 }
+
+/* ========================================
+   SECTION TINTS (alternating backgrounds)
+   ======================================== */
+
+.section-tint { background-color: var(--rw-tint-strong); }
+
+/* Bootstrap's bg-light is a flat grey; light sections on service and project pages use the shared tint (#EAF1FF, as on the service CTA panel) */
+.service-section.bg-light,
+.project-results-section.bg-light {
+    background-color: var(--rw-tint-strong) !important;
+}
+
+/* ========================================
+   POLICIES PAGE
+   ======================================== */
+
+/* Hero: background image behind a dark overlay (partials.page-hero, variant "overlay") */
+.ph-overlay {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background-color: #1B3A6D;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 110px 0 90px;
+}
+
+.ph-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(rgba(15, 26, 51, 0.8), rgba(27, 58, 109, 0.72));
+}
+
+.ph-overlay-text { max-width: 46rem; }
+
+.ph-overlay-eyebrow {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #ffc107;
+    margin-bottom: 0.9rem;
+}
+
+.ph-overlay-title {
+    color: #fff;
+    font-weight: 800;
+    font-size: clamp(2rem, 4.6vw, 3.25rem);
+    line-height: 1.12;
+    margin: 0;
+}
+
+.ph-overlay .in-rule { background: #ffc107; }
+.ph-overlay .btn-warning { color: #1a1a2e; }
+
+.ph-overlay-text p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin: 0;
+}
+
+.ph-overlay-ghost {
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+.ph-overlay-ghost:hover { color: #ffc107; }
+
+.ph-overlay a:focus-visible {
+    outline: 3px solid #ffc107;
+    outline-offset: 3px;
+}
+
+@media (max-width: 767px) {
+    .ph-overlay { padding: 80px 0 60px; }
+}
+
+.policies-intro { max-width: 60rem; }
+
+/* Each policy sits in a tinted card with a navy edge */
+.policy-card {
+    background: var(--rw-tint);
+    border-color: var(--rw-tint-strong);
+    border-left: 4px solid #38558A;
+}
+
+.policy-card .purpose-icon { background: #fff; }
+
+/* Policy hero image as a banner across the top of the card */
+.policy-card--img { overflow: hidden; }
+
+.policy-card-img {
+    margin: -2rem -2rem 1.5rem;
+    height: 180px;
+    background: var(--rw-tint-strong);
+}
+
+.policy-card-img img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@media (max-width: 575px) {
+    .policy-card-img { height: 150px; }
+}
+
+/* ========================================
+   NEWS, INSIGHTS & RESOURCES
+   ======================================== */
+
+/* Tinted page header at every width (the text panel keeps the stronger tint on desktop) */
+@media (min-width: 992px) {
+    .in-hero { background: var(--rw-tint); }
+}
+
+/* Topic badges: navy by default, teal and gold tones picked per topic (Resource::topicTone) */
+.na-topic {
+    display: inline-block;
+    align-self: flex-start;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    background: var(--rw-tint-strong);
+    color: #38558A;
+    letter-spacing: 0.08em;
+}
+
+.na-topic--1 { background: #e6f5f9; color: #016d8a; }
+.na-topic--2 { background: rgba(255, 193, 7, 0.2); color: #1a1a2e; }
+
+/* Cards on a tinted section turn white with a visible edge */
+.section-tint .in-card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 6px 22px rgba(27, 58, 109, 0.07);
+}
+
+.na-browse.section-tint { padding-top: 0; margin-top: 3.5rem; }
+.na-browse.section-tint .na-browse-head { border-top: 0; padding-top: 3.5rem; }
+
+/* Filtered view has no lead story, so the browse section follows the tinted hero: keep it white */
+.ph-hero + .na-browse.section-tint { background-color: transparent; margin-top: 0; }
+.ph-hero + .na-browse.section-tint .in-card { background: var(--rw-tint); border-color: transparent; box-shadow: none; }
+
+/* Communication asset cards: resting shadow so they read as cards on white */
+.ca-card { box-shadow: 0 6px 22px rgba(27, 58, 109, 0.07); }
+
+/* ========================================
+   PROJECT PAGE: client logo, videos, tinted bands
+   ======================================== */
+
+.pj-client {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-top: 0.4rem;
+}
+
+/* Fixed 56px height so the logo is legible; wide logos are capped and letterboxed, never stretched */
+.pj-client-logo {
+    display: block;
+    flex: 0 0 auto;
+    width: auto;
+    height: 56px;
+    max-width: min(160px, 50%);
+    object-fit: contain;
+    object-position: left center;
+}
+
+.pj-client b { flex: 1 1 auto; margin-top: 0; min-width: 0; overflow-wrap: anywhere; }
+
+.pj-videos {
+    background: var(--rw-tint-strong);
+    padding: 4rem 0;
+    margin-top: 3rem;
+}
+
+.pj-video { margin: 0; }
+
+.pj-video-frame {
+    border-radius: 1.1rem;
+    overflow: hidden;
+    background: #0f1a33;
+    box-shadow: 0 10px 30px rgba(27, 58, 109, 0.12);
+}
+
+.pj-video-frame iframe,
+.pj-video-frame video {
+    border: 0;
+    background: #000;
+    object-fit: contain;
+}
+
+.pj-video-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    aspect-ratio: 16 / 9;
+    border-radius: 1.1rem;
+    background: linear-gradient(135deg, #1B3A6D 0%, #38558A 100%);
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 10px 30px rgba(27, 58, 109, 0.12);
+}
+
+.pj-video-link i { font-size: 2.5rem; color: #fff; }
+.pj-video-link:hover { color: #fff; opacity: 0.92; }
+
+.pj-video-link:focus-visible {
+    outline: 3px solid #018DB1;
+    outline-offset: 3px;
+}
+
+.pj-video-title {
+    margin-top: 0.75rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1B1F2A;
+    line-height: 1.4;
+}
+
+.pj-related {
+    background: var(--rw-tint-strong);
+    padding-bottom: 4rem;
+    margin-top: 3rem;
+}
+
+/* Videos and More projects back to back read as one band */
+.pj-videos + .pj-related { margin-top: 0; padding-top: 0; }
+
+@media (max-width: 767px) {
+    .pj-videos { padding: 3rem 0; }
+    .pj-related { padding-bottom: 3rem; }
+}
+
+/* ========================================
+   TINTED SECTIONS: keep tint-coloured pills and badges visible
+   ======================================== */
+
+.section-tint .badge.bg-light,
+.partners-section .badge.bg-light,
+.about-intro-section .badge.bg-light,
+.faq-section .badge.bg-light {
+    background: #fff !important;
+}
+
+.section-tint .pj-label,
+.pj-delivered .pj-label,
+.pj-videos .pj-label,
+.pj-related .pj-label,
+.na-article-head.section-tint .na-topic--0 {
+    background: #fff;
+}
+
+/* Article header sits on the tint; the cover and body below stay white */
+.na-article-head.section-tint { margin-bottom: 2.5rem; padding-bottom: 2.5rem; }
+
+/* Communication assets: tinted filter panel above the white grid */
+.ca-filters {
+    background: var(--rw-tint-strong);
+    border-radius: 1rem;
+    padding: 1.25rem;
+}
+
+/* Individual policy page */
+.policy-meta { padding: 1.25rem 0; }
+.policy-meta-item { color: #495057; font-weight: 500; }

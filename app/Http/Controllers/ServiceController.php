@@ -34,19 +34,14 @@ class ServiceController extends Controller
             ->where('slug', $slug)
             ->firstOrFail();
 
-        // Get projects linked to this service
+        // Projects linked to this service via the project_service pivot only;
+        // the section is hidden when none are linked
         $projects = $service->projects()
             ->published()
-            ->orderBy('project_date', 'desc')
+            ->orderByDesc('project_date')
+            ->orderByDesc('projects.id')
+            ->limit(3)
             ->get();
-
-        // If no linked projects, fallback to same category or latest
-        if ($projects->isEmpty()) {
-            $projects = \App\Models\Project::published()
-                ->orderBy('project_date', 'desc')
-                ->limit(3)
-                ->get();
-        }
 
         $otherServices = Service::active()
             ->where('id', '!=', $service->id)

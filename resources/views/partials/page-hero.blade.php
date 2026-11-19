@@ -2,11 +2,42 @@
     Shared CMS hero for News & Insights, Communication Assets and Policies.
     Usage: @include('partials.page-hero', ['hero' => $hero, 'eyebrow' => '...', 'icon' => 'fa-newspaper', 'actions' => [...]])
     Each action: ['label' => '...', 'url' => '...', 'style' => 'primary' or 'ghost']
+    Optional 'variant' => 'overlay': the image fills the hero behind a dark overlay with white text
+    (falls back to 'default' => asset url when no image is uploaded).
 --}}
 @php
     $heroImage = $hero->image_url;
     $actions = $actions ?? [];
+    $variant = $variant ?? 'card';
 @endphp
+
+@if($variant === 'overlay')
+<section class="ph-overlay" style="background-image: url('{{ $heroImage ?: ($default ?? asset('assets/img/breadcramb.png')) }}');">
+    <div class="container">
+        <div class="ph-overlay-text">
+            @if(!empty($eyebrow))
+                <span class="ph-overlay-eyebrow">{{ $eyebrow }}</span>
+            @endif
+            <h1 class="ph-overlay-title">{{ $hero->heading }}</h1>
+            <div class="in-rule"></div>
+            @if(filled($hero->intro))
+                <p>{{ $hero->intro }}</p>
+            @endif
+            @if(count($actions))
+                <div class="in-hero-actions">
+                    @foreach($actions as $action)
+                        @if(($action['style'] ?? 'primary') === 'ghost')
+                            <a href="{{ $action['url'] }}" class="ph-overlay-ghost">{{ $action['label'] }} <i class="fas fa-arrow-right ms-1" aria-hidden="true"></i></a>
+                        @else
+                            <a href="{{ $action['url'] }}" class="btn btn-warning fw-semibold px-4 py-2 mb-0">{{ $action['label'] }}</a>
+                        @endif
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    </div>
+</section>
+@else
 
 <section class="in-hero ph-hero">
     <div class="container">
@@ -46,3 +77,4 @@
         </div>
     </div>
 </section>
+@endif

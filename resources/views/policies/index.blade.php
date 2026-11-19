@@ -9,6 +9,8 @@
     <!-- Hero (editable under Content Management > Page Heroes) -->
     @include('partials.page-hero', [
         'hero' => $hero,
+        'variant' => 'overlay',
+        'default' => asset('assets/img/breadcramb.png'),
         'eyebrow' => 'Our Policies',
         'icon' => 'fa-shield-halved',
         'actions' => [
@@ -19,21 +21,32 @@
 
     <!-- Policies List Section -->
 
+    <section class="section-tint py-4 py-lg-5">
+        <div class="container">
+            <p class="lead text-muted policies-intro mb-0">
+                At RoyalWay Media, we are committed to maintaining the highest standards of integrity, transparency, and professionalism in all our operations.
+            </p>
+        </div>
+    </section>
+
     <section class="policies-section py-5" id="policies">
         <div class="container">
-            <div class="row mb-4">
-                <div class="col-12">
-                    <p class="lead text-muted">
-                        At RoyalWay Media, we are committed to maintaining the highest standards of integrity, transparency, and professionalism in all our operations.
-                    </p>
-                </div>
-            </div>
-
 
             <div class="row g-4">
                 @forelse($policies as $policy)
+                    @php
+                        // Same image as the policy page hero; without one the card keeps its plain look
+                        $cardImg = filled($policy->hero_image) && file_exists(storage_path('app/public/' . $policy->hero_image))
+                            ? asset('storage/' . $policy->hero_image)
+                            : null;
+                    @endphp
                     <div class="col-lg-6 col-12">
-                        <div class="purpose-card h-100">
+                        <div class="purpose-card policy-card h-100{{ $cardImg ? ' policy-card--img' : '' }}">
+                            @if($cardImg)
+                                <div class="policy-card-img">
+                                    <img src="{{ $cardImg }}" alt="" loading="lazy">
+                                </div>
+                            @endif
                             <div class="d-flex align-items-start mb-3">
                                 <div class="purpose-icon me-3">
                                     <i class="fa fa-shield fa-2x text-burgundy"></i>

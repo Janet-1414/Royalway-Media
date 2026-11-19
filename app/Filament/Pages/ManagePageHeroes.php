@@ -56,15 +56,24 @@ class ManagePageHeroes extends Page implements HasForms
                         ->rows(4)
                         ->maxLength(600),
 
-                    Forms\Components\FileUpload::make("{$key}.image")
-                        ->label('Image')
-                        ->image()
-                        ->disk('public')
-                        ->directory('page-heroes')
-                        ->imageEditor()
-                        ->imageCropAspectRatio('4:5')
-                        ->imageEditorAspectRatios(['4:5'])
-                        ->helperText('Portrait image, shown in a rounded card beside the heading. Leave empty to use the brand colour panel.'),
+                    $key === 'policies'
+                        ? Forms\Components\FileUpload::make("{$key}.image")
+                            ->label('Background image')
+                            ->image()
+                            ->disk('public')
+                            ->directory('page-heroes')
+                            ->imageEditor()
+                            ->imageEditorAspectRatios(['16:9', '21:9'])
+                            ->helperText('Wide image shown behind the heading with a dark overlay. Leave empty to use the default banner image.')
+                        : Forms\Components\FileUpload::make("{$key}.image")
+                            ->label('Image')
+                            ->image()
+                            ->disk('public')
+                            ->directory('page-heroes')
+                            ->imageEditor()
+                            ->imageCropAspectRatio('4:5')
+                            ->imageEditorAspectRatios(['4:5'])
+                            ->helperText('Portrait image, shown in a rounded card beside the heading. Leave empty to use the brand colour panel.'),
                 ]);
         }
 

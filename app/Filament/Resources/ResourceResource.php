@@ -56,6 +56,8 @@ class ResourceResource extends Resource
                             ->required()
                             ->live()
                             ->options(ResourceModel::TYPE_LABELS)
+                            ->in(array_keys(ResourceModel::TYPE_LABELS))
+                            ->validationMessages(['in' => 'Choose News & Insights or Communication Asset so this item shows on the website.'])
                             ->helperText(fn (?ResourceModel $record) => $record && ! in_array($record->type, ResourceModel::PUBLIC_TYPES, true)
                                 ? 'This item uses an old type and is hidden from the website. Choose a type to show it again.'
                                 : null),
@@ -69,49 +71,66 @@ class ResourceResource extends Resource
                                 ->orderBy('topic')
                                 ->pluck('topic')
                                 ->all())
-                            ->helperText('Used for the topic filters on News & Insights, for example Public Relations or Branding.')
-                            ->visible($isBlog),
+                            ->helperText(fn (Get $get) => $isAsset($get)
+                                ? 'Groups related assets, for example Flyers, Reports or Brand Guidelines.'
+                                : 'Used for the topic filters on News & Insights, for example Public Relations or Branding.')
+                            ->visible(fn (Get $get) => $isBlog($get) || $isAsset($get)),
 
                         Forms\Components\TextInput::make('author')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->hidden($isAsset),
                     ])
                     ->columns(2),
 
-                Forms\Components\Section::make('Content')
+                Forms\Components\Section::make(fn (Get $get) => $isAsset($get) ? 'Description' : 'Content')
                     ->schema([
                         Forms\Components\Textarea::make('excerpt')
+                            ->label(fn (Get $get) => $isAsset($get) ? 'Short description' : 'Excerpt')
                             ->rows(3)
                             ->maxLength(500)
-                            ->helperText('Shown on cards and used as the description when the link is shared.')
+                            ->helperText(fn (Get $get) => $isAsset($get)
+                                ? 'One or two sentences shown on the asset card and the asset page.'
+                                : 'Shown on cards and used as the description when the link is shared.')
                             ->columnSpanFull(),
 
                         Forms\Components\RichEditor::make('content')
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->hidden($isAsset),
                     ]),
 
-                Forms\Components\Section::make('Media & Files')
+                Forms\Components\Section::make(fn (Get $get) => $isAsset($get) ? 'Document & Image' : 'Media & Files')
                     ->schema([
                         Forms\Components\FileUpload::make('featured_image')
+                            ->label(fn (Get $get) => $isAsset($get) ? 'Image' : 'Featured image')
+                            ->helperText(fn (Get $get) => $isAsset($get) ? 'Cover image shown on the asset card and page.' : null)
                             ->image()
                             ->disk('public')
                             ->directory('resources/images')
                             ->imageEditor(),
 
+                        // Article only. Assets always show their image, so the toggle is saved as on for them
                         Forms\Components\Toggle::make('show_cover')
                             ->label('Show cover image')
                             ->helperText('Turn off to display this resource without an image')
-                            ->default(true),
+                            ->default(true)
+                            ->hidden($isAsset)
+                            ->dehydratedWhenHidden()
+                            ->dehydrateStateUsing(fn ($state, Get $get) => $isAsset($get) ? true : (bool) $state),
 
                         Forms\Components\FileUpload::make('file')
-                            ->label('File')
+                            ->label(fn (Get $get) => $isAsset($get) ? 'Document' : 'File')
                             ->disk('public')
                             ->directory('resources/files')
-                            ->acceptedFileTypes(ResourceModel::UPLOAD_MIME_TYPES)
+                            ->acceptedFileTypes(fn (Get $get) => $isAsset($get)
+                                ? ResourceModel::DOCUMENT_MIME_TYPES
+                                : ResourceModel::UPLOAD_MIME_TYPES)
                             ->maxSize(51200)
                             ->downloadable()
                             ->openable()
                             ->live()
-                            ->helperText('PDF, images (JPG, PNG, WEBP, GIF), Word, Excel, PowerPoint, CSV, TXT, MP4, WEBM or MP3. Up to 50 MB.')
+                            ->helperText(fn (Get $get) => $isAsset($get)
+                                ? 'PDF, Word (DOC, DOCX), PowerPoint (PPT, PPTX) or Excel (XLS, XLSX). Up to 50 MB.'
+                                : 'PDF, images (JPG, PNG, WEBP, GIF), Word, Excel, PowerPoint, CSV, TXT, MP4, WEBM or MP3. Up to 50 MB.')
                             ->visible(fn (Get $get, ?ResourceModel $record) => $isAsset($get) || filled($record?->file)),
 
                         Forms\Components\Placeholder::make('detected_file_type')

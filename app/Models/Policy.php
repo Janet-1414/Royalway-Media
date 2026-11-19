@@ -21,6 +21,7 @@ class Policy extends Model
         'slug',
         'badge_text',
         'content',
+        'hero_image',
         'sidebar_image',
         'contact_info',
         'effective_date',
@@ -86,6 +87,18 @@ class Policy extends Model
     public function getFormattedEffectiveDateAttribute()
     {
         return $this->effective_date ? $this->effective_date->format('F d, Y') : null;
+    }
+
+    /**
+     * Hero background: the uploaded image, or the default banner from assets/img when unset or missing
+     */
+    public function getHeroImageUrlAttribute(): string
+    {
+        if (filled($this->hero_image) && file_exists(storage_path('app/public/' . $this->hero_image))) {
+            return asset('storage/' . $this->hero_image);
+        }
+
+        return asset('assets/img/breadcramb.png');
     }
 
     /**

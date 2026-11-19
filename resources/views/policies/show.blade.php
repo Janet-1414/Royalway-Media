@@ -4,19 +4,47 @@
 
 @section('content')
 
-    <!-- Page Header -->
-    <section class="page-header-section">
+    <!-- Hero: background image (Filament "Hero background image", default banner when unset) behind a dark overlay -->
+    <section class="ph-overlay policy-hero" style="background-image: url('{{ $policy->hero_image_url }}');">
         <div class="container">
-            <div class="row">
-                <div class="col-12 text-center">
-                    <h1 class="text-white">{{ $policy->title }}</h1>
-                    @if(!empty($policy->subtitle))
-                        <p class="text-white-50 mt-3">{{ $policy->subtitle }}</p>
-                    @endif
-                </div>
+            <div class="ph-overlay-text">
+                <span class="ph-overlay-eyebrow">Our Policies</span>
+                <h1 class="ph-overlay-title">{{ $policy->title }}</h1>
+                <div class="in-rule"></div>
+                @if(!empty($policy->subtitle))
+                    <p>{{ $policy->subtitle }}</p>
+                @elseif(!empty($policy->badge_text))
+                    <p>{{ $policy->badge_text }}</p>
+                @endif
             </div>
         </div>
     </section>
+
+    <!-- Policy Meta Info -->
+    @if(!empty($policy->category) || !empty($policy->effective_date) || !empty($policy->version))
+        <section class="section-tint policy-meta">
+            <div class="container">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div>
+                        @if(!empty($policy->category))
+                            <span class="badge bg-burgundy mb-2">{{ $policy->category }}</span>
+                        @endif
+                        @if(!empty($policy->effective_date))
+                            <div class="policy-meta-item">
+                                <i class="far fa-calendar me-2"></i>
+                                Effective Date: {{ is_object($policy->effective_date) ? $policy->effective_date->format('F d, Y') : $policy->effective_date }}
+                            </div>
+                        @endif
+                    </div>
+                    @if(!empty($policy->version))
+                        <div class="policy-meta-item">
+                            Version {{ $policy->version }}
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </section>
+    @endif
 
     <!-- Policy Content Section -->
     <section class="policy-content-section py-5">
@@ -24,25 +52,6 @@
             <div class="row justify-content-center">
                 <!-- Main Content -->
                 <div class="col-lg-9 col-12">
-                    <!-- Policy Meta Info -->
-                    <div class="d-flex justify-content-between align-items-center mb-4 pb-4 border-bottom">
-                        <div>
-                            @if(!empty($policy->category))
-                                <span class="badge bg-burgundy mb-2">{{ $policy->category }}</span>
-                            @endif
-                            @if(!empty($policy->effective_date))
-                                <div class="text-muted">
-                                    <i class="far fa-calendar me-2"></i>
-                                    Effective Date: {{ is_object($policy->effective_date) ? $policy->effective_date->format('F d, Y') : $policy->effective_date }}
-                                </div>
-                            @endif
-                        </div>
-                        @if(!empty($policy->version))
-                            <div class="text-muted">
-                                Version {{ $policy->version }}
-                            </div>
-                        @endif
-                    </div>
 
                     <!-- Table of Contents (if sections exist) -->
                     @if(!empty($policy->sections) && is_array($policy->sections) && count($policy->sections) > 0)
@@ -125,13 +134,6 @@
                         </div>
                     @endif
 
-                    <!-- Back to Policies -->
-                    <div class="text-center mt-5">
-                        <a href="{{ route('policies.index') }}" class="btn btn-outline-burgundy">
-                            <i class="fas fa-arrow-left me-2"></i>
-                            Back to All Policies
-                        </a>
-                    </div>
                 </div>
 
                 <!-- Sidebar (Optional) -->
@@ -189,6 +191,25 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Back to Policies -->
+    <section class="section-tint py-5">
+        <div class="container">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <p class="fs-5 fw-700 text-dark mb-1">Questions about this policy?</p>
+                    <p class="text-muted mb-0">We're here to help. Contact us for any clarifications.</p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ route('policies.index') }}" class="btn btn-outline-burgundy mb-0">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Back to All Policies
+                    </a>
+                    <a href="{{ route('contact.index') }}" class="btn btn-burgundy mb-0">Contact Us</a>
                 </div>
             </div>
         </div>

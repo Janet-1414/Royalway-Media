@@ -170,7 +170,7 @@
     </section>
 
     <!-- Services Section -->
-    <section class="services-section py-5">
+    <section class="services-section section-tint py-5">
         <div class="container-fluid">
             <div class="container">
                 <div class="row mb-4">
@@ -227,7 +227,7 @@
     </section>
 
     <!-- Projects Section -->
-    <section class="projects-section py-5">
+    <section class="projects-section section-tint py-5">
         <div class="container-fluid">
             <div class="container">
                 <div class="row mb-4">

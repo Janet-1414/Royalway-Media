@@ -164,7 +164,7 @@
     @endif
 
     <!-- F. RELATED PROJECTS -->
-    @if($projects->count() > 0)
+    @if($projects->isNotEmpty())
         <section class="service-section bg-light">
             <div class="container">
                 <div class="section-header mb-4">
@@ -172,7 +172,7 @@
                     <a href="{{ route('projects.index') }}" class="cta-link">View all projects <i class="fas fa-arrow-right ms-2"></i></a>
                 </div>
                 <div class="row g-4">
-                    @foreach($projects->take(3) as $project)
+                    @foreach($projects as $project)
                         <div class="col-lg-4 col-md-6 col-12">
                             <a href="{{ route('projects.show', $project->slug) }}" class="text-decoration-none">
                                 <div class="project-card">

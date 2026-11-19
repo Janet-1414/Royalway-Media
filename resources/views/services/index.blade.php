@@ -18,7 +18,7 @@
     </section>
 
     <!-- Services Grid -->
-    <section class="services-tiles-section py-5">
+    <section class="services-tiles-section section-tint py-5">
         <div class="container">
             @if($services->count() > 0)
                 <div class="row g-4">
